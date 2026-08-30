@@ -214,6 +214,10 @@ def test_documentation_keeps_source_build_and_requires_ghcr_digest():
     assert "No GHCR image has been published yet" not in readme
     assert "ghcr.io/eloktev/artifact-relay:v1.1.0" in readme
     assert "ghcr.io/eloktev/artifact-relay:latest" not in readme
+    assert "Don’t deploy Artifact Relay. Ask your agent to connect it." in readme
+    assert "Managed beta — free during beta" in readme
+    assert "Planned price: $24/year" in readme
+    assert "https://relay.lok-labs.com/" in readme
 
 
 def test_managed_upgrade_runbook_pins_backup_upgrade_and_rollback_digests() -> None:

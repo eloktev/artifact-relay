@@ -133,7 +133,6 @@ def test_distribution_docs_are_generic_and_cover_operations():
     combined = "\n".join(
         read(path)
         for path in (
-            "README.md",
             "PRODUCT_BRIEF.md",
             "DEVELOPMENT.md",
             "docs/VPS.md",

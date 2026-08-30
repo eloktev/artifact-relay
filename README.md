@@ -7,6 +7,24 @@ to one artifact without exposing the private library.
 
 **Website:** <https://eloktev.github.io/artifact-relay/>
 
+## Managed beta
+
+**Don’t deploy Artifact Relay. Ask your agent to connect it.** The recommended path gives you a
+private Artifact Relay hosted and maintained by Lok Labs, while keeping the publish credential local
+to Hermes:
+
+```sh
+hermes plugins install eloktev/hermes-artifact-relay
+hermes artifact-relay setup
+```
+
+[Connect with Hermes](https://relay.lok-labs.com/) to start device authorization. Hermes stores the
+credential outside chat and model output, verifies the endpoint, and publishes a test artifact.
+
+**Managed beta — free during beta. Planned price: $24/year. Limited availability.** Early customer
+instances use separate containers, volumes, hostnames, and credentials. Self-hosting remains fully
+supported below.
+
 - Markdown is sanitized; standalone HTML runs in a sandboxed, capability-scoped iframe.
 - Artifact IDs are opaque, payloads and login attempts are bounded, and logs redact secrets.
 - SQLite metadata and artifact bytes live in one persistent Docker volume.
