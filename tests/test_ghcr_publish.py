@@ -225,9 +225,17 @@ def test_managed_upgrade_runbook_pins_backup_upgrade_and_rollback_digests() -> N
     assert "NEW_ARTIFACT_RELAY_DIGEST" in runbook
     assert "PRE_UPGRADE_BACKUP" in runbook
     assert "previous-digest" in runbook
+    assert "managed-project" in runbook
+    assert "tenant-env" in runbook
     assert runbook.count(managed_layers) >= 3
     assert "up -d --wait --wait-timeout 120 app" in runbook
     assert 'ARTIFACT_RELAY_DIGEST="$PREVIOUS_ARTIFACT_RELAY_DIGEST"' in runbook
+    assert 'MANAGED=1 ./scripts/backup.sh "$PRE_UPGRADE_BACKUP/data"' in runbook
+    assert (
+        "MANAGED=1 ./scripts/restore.sh "
+        '"$PRE_UPGRADE_BACKUP/data/artifact-relay-data.tar.gz"' in runbook
+    )
+    assert "ARTIFACT_RELAY_PROJECT" in runbook
     assert "curl --fail --silent --show-error --connect-timeout 5 --max-time 15" in runbook
 
 
@@ -244,3 +252,21 @@ def test_local_managed_upgrade_rollback_smoke_is_executable_and_uses_three_layer
     assert 'ARTIFACT_RELAY_DIGEST="$PREVIOUS_ARTIFACT_RELAY_DIGEST"' in content
     cleanup = content.split("cleanup() {", maxsplit=1)[1].split("}", maxsplit=1)[0]
     assert 'ARTIFACT_RELAY_DIGEST="${PREVIOUS_ARTIFACT_RELAY_DIGEST:-' in cleanup
+
+
+def test_managed_backup_restore_smoke_runs_real_scripts_on_production_layers() -> None:
+    smoke = ROOT / "scripts" / "smoke-managed-backup-restore.sh"
+    content = smoke.read_text(encoding="utf-8")
+
+    assert stat.S_IMODE(smoke.stat().st_mode) & stat.S_IXUSR
+    assert "docker-compose.yml" in content
+    assert "deploy/compose.ghcr.yml" in content
+    assert "deploy/compose.managed.yml" in content
+    assert 'MANAGED=1 "$ROOT/scripts/backup.sh"' in content
+    assert 'MANAGED=1 "$ROOT/scripts/restore.sh"' in content
+    assert "ARTIFACT_RELAY_TENANT_ENV" in content
+    assert "ARTIFACT_RELAY_PROJECT" in content
+    assert "ARTIFACT_RELAY_DIGEST" in content
+    assert "ORIGINAL_IMAGE" in content
+    assert "ORIGINAL_ENV" in content
+    assert "--timeout 10" in content

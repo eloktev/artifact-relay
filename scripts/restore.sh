@@ -13,8 +13,10 @@ if [[ "${2:-}" != "--yes" ]]; then
   read -r answer
   [[ "$answer" == "RESTORE" ]] || { printf 'Cancelled.\n' >&2; exit 1; }
 fi
-COMPOSE_ARGS=(-f docker-compose.yml)
-[[ -f deploy/compose.vps.yml && "${VPS:-0}" == "1" ]] && COMPOSE_ARGS+=(-f deploy/compose.vps.yml)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=scripts/compose-args.sh
+source "$SCRIPT_DIR/compose-args.sh"
+configure_compose_args
 
 run_restore_tool() {
   docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps \
@@ -74,6 +76,6 @@ phase=pending
 restart
 phase=healthy
 run_restore_tool commit /data
-phase=done
+phase="done"
 trap - EXIT
 printf 'Restore complete. Health check passed; verify a known artifact.\n'

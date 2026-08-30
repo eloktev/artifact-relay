@@ -11,6 +11,8 @@ From the repository root:
 ./scripts/backup.sh
 # VPS override:
 VPS=1 ./scripts/backup.sh /secure/backups/artifact-relay-$(date -u +%F)
+# Managed GHCR deployment (all managed variables must be exported):
+MANAGED=1 ./scripts/backup.sh /secure/backups/artifact-relay-$(date -u +%F)
 ```
 
 The script stops the application briefly so the SQLite database and artifact files represent
@@ -33,7 +35,14 @@ Restore only into a compatible application version. Back up current data first, 
 ./scripts/restore.sh /secure/backups/.../artifact-relay-data.tar.gz
 # Non-interactive automation after an external approval gate:
 VPS=1 ./scripts/restore.sh /secure/backups/.../artifact-relay-data.tar.gz --yes
+# Managed GHCR deployment after an external approval gate:
+MANAGED=1 ./scripts/restore.sh /secure/backups/.../artifact-relay-data.tar.gz --yes
 ```
+
+For managed operations, export `ARTIFACT_RELAY_TENANT_ENV`, `ARTIFACT_RELAY_PROJECT`, and the exact
+`ARTIFACT_RELAY_DIGEST` first. `MANAGED=1` fails closed if any value is absent and uses the tenant
+env file, project name, digest, and base + GHCR + managed Compose layers for every operation. See
+`UPGRADE_ROLLBACK.md` for the complete recorded-digest procedure.
 
 Before stopping the service, the script rejects traversal, links, unexpected members, corrupt
 SQLite, an incompatible database schema, and unresolved recovery state. It then extracts into an

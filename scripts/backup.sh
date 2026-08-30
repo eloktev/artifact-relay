@@ -5,8 +5,10 @@ DEST="${1:-backup-$(date -u +%Y%m%dT%H%M%SZ)}"
 mkdir -p "$DEST"
 DEST="$(cd "$DEST" && pwd)"
 ARCHIVE="artifact-relay-data.tar.gz"
-COMPOSE_ARGS=(-f docker-compose.yml)
-[[ -f deploy/compose.vps.yml && "${VPS:-0}" == "1" ]] && COMPOSE_ARGS+=(-f deploy/compose.vps.yml)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=scripts/compose-args.sh
+source "$SCRIPT_DIR/compose-args.sh"
+configure_compose_args
 
 running="$(docker compose "${COMPOSE_ARGS[@]}" ps --status running -q app)"
 restart() {
