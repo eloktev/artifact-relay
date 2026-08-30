@@ -211,7 +211,8 @@ def test_documentation_keeps_source_build_and_requires_ghcr_digest():
     assert "docker build -t artifact-relay:1.1.0 ." in readme
     assert "deploy/compose.ghcr.yml" in readme
     assert "ghcr.io/eloktev/artifact-relay@sha256:" in readme
-    assert "No GHCR image has been published yet" in readme
+    assert "No GHCR image has been published yet" not in readme
+    assert "ghcr.io/eloktev/artifact-relay:v1.1.0" in readme
     assert "ghcr.io/eloktev/artifact-relay:latest" not in readme
 
 
