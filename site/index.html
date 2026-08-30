@@ -20,6 +20,7 @@
       <div class="nav-links">
         <a href="#security">Security</a>
         <a href="#compare">Compare</a>
+        <a href="#managed">Managed</a>
         <a href="#install">Install</a>
         <a class="nav-github" href="https://github.com/eloktev/artifact-relay">GitHub ↗</a>
       </div>
@@ -32,23 +33,21 @@
         <div>
           <p class="eyebrow">Open source · v1.1.0</p>
           <h1>Private artifact delivery for AI agents</h1>
-          <p class="hero-copy">Turn long agent output into readable Markdown or standalone HTML, kept in a private library you control. Share one result when you choose—not the whole archive.</p>
+          <p class="hero-copy">Don’t deploy Artifact Relay. Ask your agent to connect it. Hermes turns long output into readable Markdown or standalone HTML in a private library—hosted for you or self-hosted in minutes.</p>
           <div class="actions">
-            <a class="button button-primary" href="https://github.com/eloktev/artifact-relay#localhost-quick-start">Install from GitHub <span aria-hidden="true">↗</span></a>
-            <a class="button button-secondary" href="https://github.com/eloktev/hermes-artifact-relay">Hermes plugin</a>
+            <a class="button button-primary" href="https://relay.lok-labs.com/">Connect with Hermes</a>
+            <a class="button button-secondary" href="https://github.com/eloktev/artifact-relay#localhost-quick-start">Self-host from GitHub <span aria-hidden="true">↗</span></a>
           </div>
-          <p class="hero-note">MIT licensed · single user · no external runtime assets</p>
+          <p class="hero-note">Managed beta — free during beta · Planned price: $24/year · Limited availability</p>
         </div>
         <div class="hero-visual terminal" aria-label="Example Artifact Relay publish command">
           <div class="terminal-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>agent → relay</span></div>
-          <pre><span class="prompt">$</span> curl -X POST http://localhost:8000/api/artifacts \
-  -H "Authorization: Bearer $TOKEN" \
-  -F 'title=Release readiness report' \
-  -F 'format=markdown' \
-  -F 'content=@report.md'
+          <pre><span class="prompt">you ›</span> Connect Artifact Relay for me.
 
-<span class="response-label">Response excerpt</span>
-<span class="result">{ "url": "http://localhost:8000/a/01J...", "expires_at": "2026-09-29T12:00:00Z" }</span></pre>
+<span class="response-label">hermes ›</span> Plugin installed. Open the activation link to continue.
+
+<span class="response-label">Setup result</span>
+<span class="result">{ "configured": true, "base_url": "https://your-name.relay.lok-labs.com" }</span></pre>
         </div>
       </div>
     </div>
@@ -134,11 +133,28 @@
       </div>
     </section>
 
+    <section id="managed" aria-labelledby="managed-title">
+      <div class="section container boundary">
+        <div class="boundary-copy">
+          <p class="kicker">05 / Managed beta</p>
+          <h2 id="managed-title">Your private Artifact Relay, hosted and maintained for you.</h2>
+          <p class="lede">Hermes installs the plugin, starts device authorization, stores the publish credential locally, checks the endpoint, and publishes a verification artifact. You do not handle Docker, tokens, or server configuration.</p>
+          <div class="actions"><a class="button button-primary" href="https://relay.lok-labs.com/">Connect with Hermes</a></div>
+        </div>
+        <ul class="contract">
+          <li><span class="check">✓</span><span><strong>Managed beta — free during beta.</strong> Early access is limited while provisioning remains intentionally hands-on.</span></li>
+          <li><span class="check">✓</span><span><strong>Planned price: $24/year.</strong> The price is shown before you request access; no payment is collected during beta.</span></li>
+          <li><span class="check">✓</span><span><strong>Isolated instance.</strong> Each early customer gets a separate container, volume, hostname, and credentials.</span></li>
+          <li><span class="check">✓</span><span><strong>Maintained for you.</strong> HTTPS, upgrades, backups, monitoring, and recovery are part of the managed service.</span></li>
+        </ul>
+      </div>
+    </section>
+
     <section id="install" aria-labelledby="install-title">
       <div class="section container">
         <div class="section-head">
-          <p class="kicker">05 / Install</p>
-          <div><h2 id="install-title">Start local. Move to HTTPS when you need sharing.</h2><p class="lede">Docker Compose is the supported path. Bootstrap prompts for the viewer password and creates the secrets file.</p></div>
+          <p class="kicker">06 / Self-host</p>
+          <div><h2 id="install-title">Prefer to run it yourself?</h2><p class="lede">Docker Compose remains the supported self-hosted path. Start on localhost, or move to a Linux VPS with HTTPS when you need remote access and sharing.</p></div>
         </div>
         <div class="install-grid">
           <article class="install-card">
@@ -171,24 +187,22 @@ docker compose \
     <section aria-labelledby="plugin-title">
       <div class="section container plugin">
         <div class="plugin-copy">
-          <p class="kicker">06 / Hermes Agent</p>
+          <p class="kicker">07 / Hermes Agent</p>
           <h2 id="plugin-title">Give Hermes a private delivery path.</h2>
-          <p>The separate portable plugin registers two tools and includes a skill that turns long results into concise private links. Keep the API token in the secret environment used to launch Hermes—not in config or chat.</p>
+          <p>The portable plugin registers two tools and includes a skill that turns long results into concise private links. Hosted setup uses device authorization and keeps the publish credential out of the browser, chat, model output, and ordinary config.</p>
           <div class="tool-pills"><span class="tool-pill">artifact_publish</span><span class="tool-pill">artifact_read</span></div>
         </div>
-        <div class="code"><button class="copy" type="button" data-copy="plugin-code" data-copy-success="Hermes plugin commands copied" aria-label="Copy Hermes plugin commands">Copy</button><pre id="plugin-code" tabindex="0">hermes plugins install eloktev/hermes-artifact-relay --no-enable
-hermes config set plugins.entries.artifact-relay.settings.base_url http://localhost:8000
-export ARTIFACT_RELAY_API_TOKEN='&lt;token generated in .env&gt;'
-hermes plugins enable artifact-relay</pre></div>
+        <div class="code"><button class="copy" type="button" data-copy="plugin-code" data-copy-success="Hermes plugin commands copied" aria-label="Copy Hermes plugin commands">Copy</button><pre id="plugin-code" tabindex="0">hermes plugins install eloktev/hermes-artifact-relay
+hermes artifact-relay setup</pre></div>
       </div>
     </section>
 
     <section aria-labelledby="final-title">
       <div class="section container final">
         <p class="eyebrow">Artifact Relay v1.1.0</p>
-        <h2 id="final-title">Own the path from agent to reader.</h2>
-        <p>Inspect the source, run it on your infrastructure, and keep long agent results private until you decide otherwise.</p>
-        <div class="actions"><a class="button button-primary" href="https://github.com/eloktev/artifact-relay">View source on GitHub</a><a class="button button-secondary" href="https://github.com/eloktev/artifact-relay/releases/tag/v1.1.0">Download v1.1.0</a></div>
+        <h2 id="final-title">Ask your agent to connect it.</h2>
+        <p>Use the managed beta when you want the private library without operating a server, or inspect the source and self-host the same artifact service.</p>
+        <div class="actions"><a class="button button-primary" href="https://relay.lok-labs.com/">Connect with Hermes</a><a class="button button-secondary" href="https://github.com/eloktev/artifact-relay">View source on GitHub</a></div>
         <div class="release-links"><a href="https://github.com/eloktev/artifact-relay/blob/main/LICENSE">MIT license</a><a href="https://github.com/eloktev/artifact-relay/blob/main/SECURITY.md">Security policy</a><a href="https://github.com/eloktev/artifact-relay/releases/tag/v1.1.0">Release notes</a><a href="https://github.com/eloktev/hermes-artifact-relay">Hermes plugin</a></div>
       </div>
     </section>

@@ -71,28 +71,38 @@ def test_landing_copy_matches_verified_positioning() -> None:
         "standalone HTML",
         "sharing is disabled by default",
         "Hermes Agent",
+        "Connect with Hermes",
+        "Don’t deploy Artifact Relay. Ask your agent to connect it.",
+        "Managed beta — free during beta",
+        "Planned price: $24/year",
+        "Limited availability",
+        "hosted and maintained for you",
         "Why not",
         "MIT",
         "v1.1.0",
-        "response excerpt",
+        "Setup result",
     )
     for phrase in required_copy:
         assert phrase.casefold() in text.casefold(), phrase
 
     assert "revolutionary" not in source.casefold()
     assert "secure by design" not in source.casefold()
-    assert "hosted" not in source.casefold()
-    assert "pricing" not in source.casefold()
     assert "any vps" not in source.casefold()
     assert "your own vps" not in source.casefold()
-    assert '"expires_in_days"' not in source
-    assert '"expires_at"' in source
 
     links = [attrs for tag, attrs in parser.tags if tag == "a"]
     hrefs = {attrs.get("href") for attrs in links}
     assert "https://github.com/eloktev/artifact-relay" in hrefs
     assert "https://github.com/eloktev/hermes-artifact-relay" in hrefs
     assert "https://github.com/eloktev/artifact-relay/releases/tag/v1.1.0" in hrefs
+    assert "https://relay.lok-labs.com/" in hrefs
+
+    primary_links = [
+        attrs.get("href")
+        for tag, attrs in parser.tags
+        if tag == "a" and "button-primary" in attrs.get("class", "")
+    ]
+    assert primary_links[0] == "https://relay.lok-labs.com/"
 
 
 def test_landing_has_accessible_semantic_shell() -> None:
