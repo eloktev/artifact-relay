@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Artifact Relay — Private artifact delivery for AI agents</title>
+  <meta name="description" content="Publish long AI-agent results into a private, durable library. Run Artifact Relay on localhost or a Linux VPS.">
+  <meta property="og:title" content="Artifact Relay — Private artifact delivery for AI agents">
+  <meta property="og:description" content="A private-by-default gateway for Markdown, standalone HTML, and selective sharing.">
+  <meta name="theme-color" content="#090b0a">
+  <link rel="canonical" href="https://eloktev.github.io/artifact-relay/">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="Artifact Relay home"><span class="brand-mark" aria-hidden="true"></span>Artifact Relay</a>
+      <div class="nav-links">
+        <a href="#security">Security</a>
+        <a href="#compare">Compare</a>
+        <a href="#install">Install</a>
+        <a class="nav-github" href="https://github.com/eloktev/artifact-relay">GitHub ↗</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="container" id="top">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">Open source · v1.0.0</p>
+          <h1>Private artifact delivery for AI agents</h1>
+          <p class="hero-copy">Turn long agent output into readable Markdown or standalone HTML, kept in a private library you control. Share one result when you choose—not the whole archive.</p>
+          <div class="actions">
+            <a class="button button-primary" href="https://github.com/eloktev/artifact-relay#localhost-quick-start">Install from GitHub <span aria-hidden="true">↗</span></a>
+            <a class="button button-secondary" href="https://github.com/eloktev/hermes-artifact-relay">Hermes plugin</a>
+          </div>
+          <p class="hero-note">MIT licensed · single user · no external runtime assets</p>
+        </div>
+        <div class="hero-visual terminal" aria-label="Example Artifact Relay publish command">
+          <div class="terminal-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>agent → relay</span></div>
+          <pre><span class="prompt">$</span> curl -X POST http://localhost:8000/api/artifacts \
+  -H "Authorization: Bearer $TOKEN" \
+  -F 'title=Release readiness report' \
+  -F 'format=markdown' \
+  -F 'content=@report.md'
+
+<span class="response-label">Response excerpt</span>
+<span class="result">{ "url": "http://localhost:8000/a/01J...", "expires_at": "2026-09-29T12:00:00Z" }</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <section aria-labelledby="flow-title">
+      <div class="section container">
+        <div class="section-head">
+          <p class="kicker">01 / Relay</p>
+          <div><h2 id="flow-title">From agent output to a durable reading surface.</h2><p class="lede">The publisher does not need your viewer password. Readers never receive the publisher token. Optional shares stay scoped to one artifact.</p></div>
+        </div>
+        <figure class="flow-figure">
+          <img src="assets/relay-flow.svg" alt="Flow from an AI agent through Artifact Relay to a private viewer, with an optional one-artifact share link" width="1200" height="240">
+          <figcaption>Separate credentials keep publishing, private reading, and selective sharing at different trust boundaries.</figcaption>
+        </figure>
+        <div class="proof-grid">
+          <article class="proof"><span class="proof-index">01</span><h3>Publish native formats</h3><p>Send Markdown with optional assets, or a standalone HTML document. The API returns an opaque artifact URL.</p></article>
+          <article class="proof"><span class="proof-index">02</span><h3>Read in a private library</h3><p>A password session unlocks a mobile-ready library. Artifacts expire automatically unless pinned and can be deleted immediately.</p></article>
+          <article class="proof"><span class="proof-index">03</span><h3>Share only when needed</h3><p>Create an expiring, revocable link for one rendered artifact. Sharing is disabled by default in the localhost setup.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="surface-title">
+      <div class="section container">
+        <div class="section-head">
+          <p class="kicker">02 / Product surface</p>
+          <div><h2 id="surface-title">A library for results worth keeping.</h2><p class="lede">Long reports stop disappearing into chat history. Artifact Relay gives them a stable, focused reading surface for desktop and mobile.</p></div>
+        </div>
+        <div class="surface-grid">
+          <figure class="product-shot">
+            <img src="assets/artifact-library.webp" alt="Synthetic Artifact Relay library showing favorite reports, topic filters, and recent artifacts" width="1440" height="900">
+            <figcaption>Product UI illustration using synthetic report titles; it represents the v1.0.0 library, not customer evidence.</figcaption>
+          </figure>
+          <div class="surface-notes">
+            <div class="note"><strong>Private by default</strong><span>Unauthenticated visitors see preview metadata and a login form, not artifact content.</span></div>
+            <div class="note"><strong>Readable anywhere</strong><span>Responsive pages, bundled syntax highlighting, Mermaid, and fonts—with no CDN dependency.</span></div>
+            <div class="note"><strong>Simple persistence</strong><span>SQLite metadata and artifact bytes live in one Docker volume with documented backup and restore.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="security" aria-labelledby="security-title">
+      <div class="section container boundary">
+        <div class="boundary-copy">
+          <p class="kicker">03 / Security contract</p>
+          <h2 id="security-title">Concrete boundaries, not a security slogan.</h2>
+          <p class="lede">Artifact Relay is a small, single-user gateway. Its controls are explicit and inspectable in the source.</p>
+          <div class="boundary-card">
+            <h3>Local and network modes differ on purpose.</h3>
+            <p>The localhost path binds to <code>127.0.0.1</code>, uses local HTTP, and keeps shares off. On a Linux VPS, the documented path puts Caddy HTTPS in front, keeps the app port on loopback, enables secure cookies, and can enable scoped shares.</p>
+          </div>
+        </div>
+        <ul class="contract">
+          <li><span class="check">✓</span><span><strong>Independent credentials.</strong> A bearer token publishes; a separate password opens the private viewer.</span></li>
+          <li><span class="check">✓</span><span><strong>Narrow sharing.</strong> Share links grant one rendered artifact, can expire, and can be revoked. Treat the URL as a credential.</span></li>
+          <li><span class="check">✓</span><span><strong>Bounded rendering.</strong> Markdown is sanitized. Standalone HTML runs in a sandboxed, opaque-origin iframe.</span></li>
+          <li><span class="check">✓</span><span><strong>No CDN execution path.</strong> Mermaid, highlighting, and fonts are bundled with the release.</span></li>
+          <li><span class="check">✓</span><span><strong>Operational limits.</strong> Payloads, login attempts, and concurrent Argon2 password checks are bounded.</span></li>
+          <li><span class="check">✓</span><span><strong>Secret-aware bootstrap.</strong> Setup generates independent secrets, hashes the viewer password, and writes the environment file with mode <code>0600</code>.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="compare" aria-labelledby="compare-title">
+      <div class="section container">
+        <div class="section-head">
+          <p class="kicker">04 / Why not</p>
+          <div><h2 id="compare-title">Choose the boundary that matches the job.</h2><p class="lede">Artifact Relay is not generic static publishing. It is for private, recurring delivery from trusted AI agents.</p></div>
+        </div>
+        <div class="compare-wrap" role="region" aria-label="Artifact delivery alternatives" tabindex="0">
+          <table class="compare">
+            <thead><tr><th>Option</th><th>Good fit</th><th>Difference for this job</th></tr></thead>
+            <tbody>
+              <tr><td>Artifact Relay</td><td>Private agent output, a durable single-user library, selective sharing</td><td>Separate publisher/viewer credentials and per-artifact expiring, revocable links are part of the product contract.</td></tr>
+              <tr><td>S3 / Pages</td><td>General files or public static sites with infrastructure flexibility</td><td>You assemble authentication, rendering, library UX, expiry, and share lifecycle yourself.</td></tr>
+              <tr><td>easl / htmldrop</td><td>Fast browser-based HTML publishing</td><td>Optimized for quick page publishing rather than a private agent-to-library workflow.</td></tr>
+              <tr><td>Hermes Telegram Artifacts</td><td>Viewing results inside a Telegram-centered Hermes flow</td><td>Artifact Relay keeps delivery channel-independent and provides its own private web library.</td></tr>
+              <tr><td>Open Artifact</td><td>Interactive artifact creation and preview workflows</td><td>A broader creation surface; Artifact Relay stays focused on receiving and reading trusted agent output.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="install" aria-labelledby="install-title">
+      <div class="section container">
+        <div class="section-head">
+          <p class="kicker">05 / Install</p>
+          <div><h2 id="install-title">Start local. Move to HTTPS when you need sharing.</h2><p class="lede">Docker Compose is the supported path. Bootstrap prompts for the viewer password and creates the secrets file.</p></div>
+        </div>
+        <div class="install-grid">
+          <article class="install-card">
+            <h3>Localhost</h3>
+            <p>Private on one machine: loopback binding and sharing off by default.</p>
+            <div class="code"><button class="copy" type="button" data-copy="local-code" data-copy-success="Localhost install commands copied" aria-label="Copy localhost install commands">Copy</button><pre id="local-code" tabindex="0">git clone https://github.com/eloktev/artifact-relay.git
+cd artifact-relay
+docker build -t artifact-relay:1.0.0 .
+./scripts/bootstrap.sh
+docker compose up -d
+curl -fsS http://localhost:8000/api/health</pre></div>
+            <a class="details-link" href="https://github.com/eloktev/artifact-relay#localhost-quick-start">Read localhost setup →</a>
+          </article>
+          <article class="install-card">
+            <h3>Linux VPS</h3>
+            <p>Internet-facing with Caddy TLS, secure cookies, and the app kept on loopback.</p>
+            <div class="code"><button class="copy" type="button" data-copy="vps-code" data-copy-success="Linux VPS install commands copied" aria-label="Copy Linux VPS install commands">Copy</button><pre id="vps-code" tabindex="0"># Set your HTTPS origin and domain first
+docker compose \
+  -f docker-compose.yml \
+  -f deploy/compose.vps.yml config
+docker compose \
+  -f docker-compose.yml \
+  -f deploy/compose.vps.yml up -d</pre></div>
+            <a class="details-link" href="https://github.com/eloktev/artifact-relay/blob/main/docs/VPS.md">Read VPS guide →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="plugin-title">
+      <div class="section container plugin">
+        <div class="plugin-copy">
+          <p class="kicker">06 / Hermes Agent</p>
+          <h2 id="plugin-title">Give Hermes a private delivery path.</h2>
+          <p>The separate portable plugin registers two tools and includes a skill that turns long results into concise private links. Keep the API token in the secret environment used to launch Hermes—not in config or chat.</p>
+          <div class="tool-pills"><span class="tool-pill">artifact_publish</span><span class="tool-pill">artifact_read</span></div>
+        </div>
+        <div class="code"><button class="copy" type="button" data-copy="plugin-code" data-copy-success="Hermes plugin commands copied" aria-label="Copy Hermes plugin commands">Copy</button><pre id="plugin-code" tabindex="0">hermes plugins install eloktev/hermes-artifact-relay --no-enable
+hermes config set plugins.entries.artifact-relay.settings.base_url http://localhost:8000
+export ARTIFACT_RELAY_API_TOKEN='&lt;token generated in .env&gt;'
+hermes plugins enable artifact-relay</pre></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="final-title">
+      <div class="section container final">
+        <p class="eyebrow">Artifact Relay v1.0.0</p>
+        <h2 id="final-title">Own the path from agent to reader.</h2>
+        <p>Inspect the source, run it on your infrastructure, and keep long agent results private until you decide otherwise.</p>
+        <div class="actions"><a class="button button-primary" href="https://github.com/eloktev/artifact-relay">View source on GitHub</a><a class="button button-secondary" href="https://github.com/eloktev/artifact-relay/releases/tag/v1.0.0">Download v1.0.0</a></div>
+        <div class="release-links"><a href="https://github.com/eloktev/artifact-relay/blob/main/LICENSE">MIT license</a><a href="https://github.com/eloktev/artifact-relay/blob/main/SECURITY.md">Security policy</a><a href="https://github.com/eloktev/artifact-relay/releases/tag/v1.0.0">Release notes</a><a href="https://github.com/eloktev/hermes-artifact-relay">Hermes plugin</a></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="copy-status" class="sr-only" role="status" aria-live="polite"></div>
+
+  <footer class="site-footer"><div class="container footer-inner"><span>Artifact Relay · private by default</span><span>Open source under MIT · v1.0.0</span></div></footer>
+</body>
+</html>
