@@ -17,7 +17,7 @@ to one artifact without exposing the private library.
 Requirements: Docker Engine with Compose v2, OpenSSL, and a POSIX shell.
 
 ```sh
-docker build -t artifact-relay:1.0.0 .
+docker build -t artifact-relay:1.1.0 .
 ./scripts/bootstrap.sh
 docker compose up -d
 docker compose ps
@@ -37,7 +37,7 @@ The default Compose deployment is intentionally local-only:
 - data persists in the named volume `artifact-data`.
 
 The default Compose deployment keeps building the checkout and gives it the readable local tag
-`artifact-relay:1.0.0`. This source-build path remains the default.
+`artifact-relay:1.1.0`. This source-build path remains the default.
 
 A release workflow is prepared to publish multi-architecture images to GHCR from strict `vX.Y.Z`
 tags that match the version in `pyproject.toml`, but **No GHCR image has been published yet.**

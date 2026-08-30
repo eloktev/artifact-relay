@@ -707,7 +707,7 @@ pointing at `/build/src`, which does not exist in the runtime stage. Fixed with
 
 ```
 $ docker run --rm artifact-relay:local python -c "import sys, artifact_relay; print(...)"
-3.12.14 1.0.0
+3.12.14 1.1.0
 
 $ docker run --rm artifact-relay:local id
 uid=10001(app) gid=10001(app) groups=10001(app)

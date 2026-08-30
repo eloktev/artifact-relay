@@ -1,6 +1,6 @@
 [project]
 name = "artifact-relay"
-version = "1.0.0"
+version = "1.1.0"
 description = "Self-hosted single-user service that publishes Markdown/HTML artifacts as mobile-first web pages."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"

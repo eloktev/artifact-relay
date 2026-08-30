@@ -47,7 +47,7 @@ def test_local_compose_has_safe_defaults_and_persistent_storage():
     assert 'COOKIE_SECURE: "false"' in compose
     assert 'SHARE_LINKS_ENABLED: "false"' in compose
     assert "/api/health" in compose
-    assert "${ARTIFACT_RELAY_IMAGE:-artifact-relay:1.0.0}" in compose
+    assert "${ARTIFACT_RELAY_IMAGE:-artifact-relay:1.1.0}" in compose
 
 
 def test_vps_examples_enable_https_cookies_and_shares_behind_caddy():
@@ -81,7 +81,7 @@ def test_bootstrap_creates_private_env_and_hashes_password_in_container(tmp_path
     env = os.environ | {
         "PATH": f"{bin_dir}:{os.environ['PATH']}",
         "ENV_FILE": str(tmp_path / ".env"),
-        "ARTIFACT_RELAY_IMAGE": "artifact-relay:1.0.0",
+        "ARTIFACT_RELAY_IMAGE": "artifact-relay:1.1.0",
     }
     result = subprocess.run(  # noqa: S603
         [str(ROOT / "scripts" / "bootstrap.sh")],
@@ -103,7 +103,7 @@ def test_bootstrap_creates_private_env_and_hashes_password_in_container(tmp_path
     assert "SHARE_LINKS_ENABLED=false" in values
     assert "correct horse battery staple" not in values
     invocation = log.read_text(encoding="utf-8")
-    expected = "run --rm -i --entrypoint python artifact-relay:1.0.0 -c"
+    expected = "run --rm -i --entrypoint python artifact-relay:1.1.0 -c"
     assert expected in invocation
     assert invocation.count("correct horse battery staple") == 1
 

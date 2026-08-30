@@ -73,7 +73,7 @@ def test_landing_copy_matches_verified_positioning() -> None:
         "Hermes Agent",
         "Why not",
         "MIT",
-        "v1.0.0",
+        "v1.1.0",
         "response excerpt",
     )
     for phrase in required_copy:
@@ -92,7 +92,7 @@ def test_landing_copy_matches_verified_positioning() -> None:
     hrefs = {attrs.get("href") for attrs in links}
     assert "https://github.com/eloktev/artifact-relay" in hrefs
     assert "https://github.com/eloktev/hermes-artifact-relay" in hrefs
-    assert "https://github.com/eloktev/artifact-relay/releases/tag/v1.0.0" in hrefs
+    assert "https://github.com/eloktev/artifact-relay/releases/tag/v1.1.0" in hrefs
 
 
 def test_landing_has_accessible_semantic_shell() -> None:

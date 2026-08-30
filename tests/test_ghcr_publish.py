@@ -133,7 +133,7 @@ def run_release_validation(
 
 
 def test_release_validation_accepts_exact_matching_semver() -> None:
-    result = run_release_validation("v1.0.0")
+    result = run_release_validation("v1.1.0")
 
     assert result.returncode == 0, result.stderr
 
@@ -208,7 +208,7 @@ def test_documentation_keeps_source_build_and_requires_ghcr_digest():
     default_compose = yaml.safe_load((ROOT / "docker-compose.yml").read_text(encoding="utf-8"))
 
     assert default_compose["services"]["app"]["build"] == {"context": "."}
-    assert "docker build -t artifact-relay:1.0.0 ." in readme
+    assert "docker build -t artifact-relay:1.1.0 ." in readme
     assert "deploy/compose.ghcr.yml" in readme
     assert "ghcr.io/eloktev/artifact-relay@sha256:" in readme
     assert "No GHCR image has been published yet" in readme

@@ -17,14 +17,14 @@ Docker publishes the application only on `127.0.0.1`; Caddy owns ports 80/443.
    For a versioned source checkout:
 
    ```sh
-   docker build -t artifact-relay:1.0.0 .
-   export ARTIFACT_RELAY_IMAGE=artifact-relay:1.0.0
+   docker build -t artifact-relay:1.1.0 .
+   export ARTIFACT_RELAY_IMAGE=artifact-relay:1.1.0
    ```
 
    Or pull an immutable registry image:
 
    ```sh
-   export ARTIFACT_RELAY_IMAGE=registry.example/artifact-relay:1.0.0
+   export ARTIFACT_RELAY_IMAGE=registry.example/artifact-relay:1.1.0
    export ARTIFACT_RELAY_PULL_POLICY=missing
    docker pull "$ARTIFACT_RELAY_IMAGE"
    ```
