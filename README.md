@@ -5,6 +5,8 @@ standalone HTML as mobile-friendly web pages. A bearer-authenticated API publish
 artifacts; viewers log in with one password. Optional, revocable share links can grant access
 to one artifact without exposing the private library.
 
+**Website:** <https://eloktev.github.io/artifact-relay/>
+
 - Markdown is sanitized; standalone HTML runs in a sandboxed, capability-scoped iframe.
 - Artifact IDs are opaque, payloads and login attempts are bounded, and logs redact secrets.
 - SQLite metadata and artifact bytes live in one persistent Docker volume.

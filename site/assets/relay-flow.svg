@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 240" role="img" aria-labelledby="title desc">
+  <title id="title">Artifact Relay trust flow</title>
+  <desc id="desc">A trusted agent publishes to the relay. The private viewer opens the library, and an optional scoped link shares one artifact.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8Z" fill="#69726d"/></marker>
+    <style>.box{fill:#111512;stroke:#39413c;stroke-width:1.5}.share{fill:#14251b;stroke:#4cab6c;stroke-width:1.5}.label{fill:#f3f6f4;font:600 18px system-ui,sans-serif}.meta{fill:#9ca7a0;font:14px ui-monospace,monospace}.line{stroke:#69726d;stroke-width:2;fill:none;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect class="box" x="20" y="66" width="220" height="108" rx="12"/><text class="label" x="48" y="111">AI agent</text><text class="meta" x="48" y="142">bearer publisher</text>
+  <path class="line" d="M240 120H330"/><text class="meta" x="258" y="102">publish</text>
+  <rect class="box" x="330" y="42" width="250" height="156" rx="12"/><text class="label" x="358" y="91">Artifact Relay</text><text class="meta" x="358" y="123">sanitize · store · render</text><text class="meta" x="358" y="153">one persistent volume</text>
+  <path class="line" d="M580 120H670"/>
+  <rect class="box" x="670" y="66" width="230" height="108" rx="12"/><text class="label" x="698" y="111">Private viewer</text><text class="meta" x="698" y="142">password session</text>
+  <path class="line" d="M900 120H975"/><text class="meta" x="907" y="102">optional</text>
+  <rect class="share" x="975" y="66" width="205" height="108" rx="12"/><text class="label" x="1003" y="111">Scoped share</text><text class="meta" x="1003" y="142">one artifact · expiry</text>
+</svg>
