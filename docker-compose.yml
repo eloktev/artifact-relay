@@ -1,0 +1,31 @@
+services:
+  app:
+    image: ${ARTIFACT_RELAY_IMAGE:-artifact-relay:1.0.0}
+    build:
+      context: .
+    pull_policy: ${ARTIFACT_RELAY_PULL_POLICY:-build}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATA_DIR: /data
+      BASE_URL: http://localhost:8000
+      COOKIE_SECURE: "false"
+      SHARE_LINKS_ENABLED: "false"
+    ports:
+      - "127.0.0.1:${ARTIFACT_RELAY_PORT:-8000}:8000"
+    volumes:
+      - artifact-data:/data
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4)"
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+volumes:
+  artifact-data:

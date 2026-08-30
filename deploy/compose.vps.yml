@@ -1,0 +1,8 @@
+services:
+  app:
+    environment:
+      BASE_URL: https://artifacts.example.com
+      COOKIE_SECURE: "true"
+      SHARE_LINKS_ENABLED: "true"
+    ports:
+      - "127.0.0.1:${ARTIFACT_RELAY_PORT:-8000}:8000"

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ heading }}{% endblock %}
+{% block body_class %}page-centered{% endblock %}
+{% block body %}
+<main class="gate">
+  <p class="gate__eyebrow">Artifact Relay</p>
+  <h1 class="gate__title">{{ heading }}</h1>
+  <p class="gate__hint">{{ explanation }}</p>
+</main>
+{% endblock %}

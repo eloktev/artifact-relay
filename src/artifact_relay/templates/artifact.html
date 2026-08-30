@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ artifact.title }}{% endblock %}
+{% block head %}
+  {% include "_og.html" %}
+  <link rel="stylesheet" href="/static/css/highlight.css">
+{% endblock %}
+{% block body_class %}page-doc{% endblock %}
+{% block body %}
+<div class="layout">
+  <header class="masthead">
+    <p class="masthead__eyebrow">
+      <time datetime="{{ artifact.created_at.isoformat() }}">{{ artifact.created_at | human_date }}</time>
+      {% if artifact.expires_at %}
+        · доступно до {{ artifact.expires_at | human_date }}
+      {% else %}
+        · без срока
+      {% endif %}
+    </p>
+    <h1 class="masthead__title">{{ artifact.title }}</h1>
+    {% if artifact.summary %}<p class="masthead__summary">{{ artifact.summary }}</p>{% endif %}
+    <nav class="actions" aria-label="Действия">
+      <a class="actions__item" href="/">Все артефакты</a>
+      <form class="actions__form" method="post" action="/a/{{ artifact.id }}/favorite">
+        <button class="actions__item{% if artifact.favorite %} actions__item--favorite{% endif %}" type="submit">
+          {% if artifact.favorite %}★ В избранном{% else %}☆ В избранное{% endif %}
+        </button>
+      </form>
+      <a class="actions__item" href="/a/{{ artifact.id }}/source" download>Скачать исходник</a>
+      <button class="actions__item" type="button" data-action="print">Печать / PDF</button>
+      {% if toc %}
+        <button class="actions__item actions__item--toc" type="button"
+                data-action="toggle-toc" aria-expanded="false" aria-controls="toc">Содержание</button>
+      {% endif %}
+      <form class="actions__logout" method="post" action="/logout">
+        <button class="actions__item actions__item--quiet" type="submit">Выйти</button>
+      </form>
+    </nav>
+  </header>
+
+  {% if settings.share_links_enabled %}{% include "_share_panel.html" %}{% endif %}
+
+  {% if artifact.session_title or artifact.topic_name or artifact.topic_id %}
+  <aside class="provenance" aria-label="Источник артефакта">
+    {% if artifact.session_title %}<span><strong>Сессия:</strong> {{ artifact.session_title }}</span>{% endif %}
+    {% if artifact.topic_name %}<span><strong>Топик:</strong> {{ artifact.topic_name }}</span>
+    {% elif artifact.topic_id %}<span><strong>Топик:</strong> {{ artifact.topic_id }}</span>{% endif %}
+  </aside>
+  {% endif %}
+
+  {% if toc %}
+  <nav class="toc" id="toc" data-toc aria-label="Содержание" hidden>
+    <ol class="toc__list">
+      {% for entry in toc %}
+      <li class="toc__item toc__item--l{{ entry.level }}">
+        <a class="toc__link" href="#{{ entry.anchor }}">{{ entry.text }}</a>
+      </li>
+      {% endfor %}
+    </ol>
+  </nav>
+  {% endif %}
+
+  <article class="doc">
+    {{ body_html | safe }}
+  </article>
+
+  <footer class="colophon">
+    <a class="colophon__link" href="/a/{{ artifact.id }}/source" download>Исходник</a>
+  </footer>
+</div>
+{% if has_mermaid %}<script src="/static/js/mermaid.min.js"></script>{% endif %}
+<script src="/static/js/artifact.js"></script>
+{% endblock %}

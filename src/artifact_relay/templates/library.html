@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Артефакты{% endblock %}
+{% block body_class %}page-library{% endblock %}
+{% block body %}
+<main class="library">
+  <header class="library__header">
+    <div>
+      <p class="library__eyebrow">Artifact Relay</p>
+      <h1 class="library__title">Артефакты</h1>
+    </div>
+    <form method="post" action="/logout">
+      <button class="actions__item actions__item--quiet" type="submit">Выйти</button>
+    </form>
+  </header>
+
+  {% if favorites %}
+  <section class="library-section library-section--favorites" aria-labelledby="favorites-title">
+    <h2 id="favorites-title">Избранное</h2>
+    <div class="artifact-grid artifact-grid--favorites">
+      {% for artifact in favorites %}
+      <article class="artifact-card artifact-card--favorite">
+        <p class="artifact-card__marker">★</p>
+        <h3><a href="/a/{{ artifact.id }}">{{ artifact.title }}</a></h3>
+        {% if artifact.session_title %}<p class="artifact-card__session">{{ artifact.session_title }}</p>{% endif %}
+        <p class="artifact-card__topic">
+          {{ artifact.chat_name or artifact.platform or "Без источника" }} ·
+          {{ artifact.topic_name or ("Топик " ~ artifact.topic_id if artifact.topic_id else "Без топика") }}
+        </p>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="library-section" aria-labelledby="topics-title">
+    <h2 id="topics-title">Топики</h2>
+    {% if topics %}
+    <div class="topic-list">
+      {% for topic in topics %}
+      <div class="topic-pill">
+        <span>{{ topic.chat_name }} · {{ topic.topic_name }}</span>
+        <strong>{{ topic.count }}</strong>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<p class="library__empty">Пока нет артефактов.</p>{% endif %}
+  </section>
+
+  <section class="library-section" aria-labelledby="all-title">
+    <h2 id="all-title">Все артефакты</h2>
+    <div class="artifact-list">
+      {% for artifact in artifacts %}
+      <article class="artifact-row">
+        <div class="artifact-row__main">
+          <h3><a href="/a/{{ artifact.id }}">{% if artifact.favorite %}★ {% endif %}{{ artifact.title }}</a></h3>
+          {% if artifact.session_title %}<p>{{ artifact.session_title }}</p>{% endif %}
+        </div>
+        <div class="artifact-row__meta">
+          <span>{{ artifact.topic_name or ("Топик " ~ artifact.topic_id if artifact.topic_id else "Без топика") }}</span>
+          <time datetime="{{ artifact.created_at.isoformat() }}">{{ artifact.created_at | human_date }}</time>
+        </div>
+      </article>
+      {% else %}
+      <p class="library__empty">Пока нет артефактов.</p>
+      {% endfor %}
+    </div>
+  </section>
+</main>
+{% endblock %}

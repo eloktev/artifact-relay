@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ artifact.title }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/highlight.css">{% endblock %}
+{% block body_class %}page-doc{% endblock %}
+{% block body %}
+<div class="layout">
+  <header class="masthead">
+    <p class="masthead__eyebrow">Артефакт по защищённой ссылке</p>
+    <h1 class="masthead__title">{{ artifact.title }}</h1>
+    {% if artifact.summary %}<p class="masthead__summary">{{ artifact.summary }}</p>{% endif %}
+    <nav class="actions" aria-label="Действия">
+      <button class="actions__item" type="button" data-action="print">Печать / PDF</button>
+      {% if toc %}
+        <button class="actions__item actions__item--toc" type="button"
+                data-action="toggle-toc" aria-expanded="false" aria-controls="toc">Содержание</button>
+      {% endif %}
+    </nav>
+  </header>
+
+  {% if toc %}
+  <nav class="toc" id="toc" data-toc aria-label="Содержание" hidden>
+    <ol class="toc__list">
+      {% for entry in toc %}
+      <li class="toc__item toc__item--l{{ entry.level }}">
+        <a class="toc__link" href="#{{ entry.anchor }}">{{ entry.text }}</a>
+      </li>
+      {% endfor %}
+    </ol>
+  </nav>
+  {% endif %}
+
+  <article class="doc">{{ body_html | safe }}</article>
+  <footer class="colophon">Доступ предоставлен только к этому артефакту.</footer>
+</div>
+{% if has_mermaid %}<script src="/static/js/mermaid.min.js"></script>{% endif %}
+<script src="/static/js/artifact.js"></script>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Ссылка для «{{ artifact.title }}»{% endblock %}
+{% block body_class %}page-centered{% endblock %}
+{% block body %}
+<main class="gate gate--wide" data-share-created data-return-url="/a/{{ artifact.id }}">
+  <p class="gate__eyebrow">Защищённая ссылка создана</p>
+  <h1 class="gate__title">{{ artifact.title }}</h1>
+  <p class="gate__hint">
+    Доступ только к этому артефакту ·
+    {% if expires_days == 0 %}без срока{% elif expires_days == 1 %}1 день{% else %}{{ expires_days }} дней{% endif %}.
+  </p>
+  <label class="gate__label" for="share-url">Ссылка</label>
+  <div class="share-copy">
+    <input class="gate__input" id="share-url" type="text" value="{{ share_url }}"
+           readonly data-share-url autocomplete="off" spellcheck="false">
+    <button class="gate__button" type="button" data-copy-share>Скопировать</button>
+  </div>
+  <p class="gate__hint" data-copy-status aria-live="polite">Секрет показан только сейчас.</p>
+  <a class="actions__item" href="/a/{{ artifact.id }}">Вернуться к артефакту</a>
+</main>
+<script src="/static/js/share-copy.js" defer></script>
+{% endblock %}

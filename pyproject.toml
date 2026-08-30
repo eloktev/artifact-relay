@@ -1,0 +1,72 @@
+[project]
+name = "artifact-relay"
+version = "1.0.0"
+description = "Self-hosted single-user service that publishes Markdown/HTML artifacts as mobile-first web pages."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+
+dependencies = [
+    "fastapi>=0.115,<1.0",
+    "uvicorn[standard]>=0.32,<1.0",
+    "jinja2>=3.1.4,<4.0",
+    "python-multipart>=0.0.18,<1.0",
+    "pydantic>=2.9,<3.0",
+    "pydantic-settings>=2.6,<3.0",
+    "itsdangerous>=2.2,<3.0",
+    "argon2-cffi>=23.1,<26.0",
+    "markdown-it-py>=3.0,<4.0",
+    "mdit-py-plugins>=0.4,<1.0",
+    "pygments>=2.18,<3.0",
+    "nh3>=0.2.18,<1.0",
+    "pillow>=11.0,<13.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0.3,<10.0",
+    "pytest-cov>=6.0,<8.0",
+    "httpx>=0.28,<1.0",
+    "ruff>=0.8,<1.0",
+    "mypy>=1.13,<2.0",
+    "pip-audit>=2.7,<3.0",
+    "types-Pygments>=2.18,<3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/artifact_relay"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+filterwarnings = ["error::DeprecationWarning:artifact_relay.*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "S", "C4", "SIM", "RUF"]
+# RUF001-003: this service is Russian-language by design (UI labels, fixtures and test
+# markers are Cyrillic), so "ambiguous unicode character" fires on every second string.
+ignore = ["S101", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S105", "S106", "S107", "S108", "S311"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["artifact_relay"]
+warn_unused_ignores = true
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["mdit_py_plugins.*", "nh3.*"]
+ignore_missing_imports = true

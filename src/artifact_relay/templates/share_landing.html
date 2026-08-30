@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Открываем артефакт…{% endblock %}
+{% block body_class %}page-centered{% endblock %}
+{% block body %}
+<main class="gate" data-share-landing>
+  <p class="gate__eyebrow">Artifact Relay</p>
+  <h1 class="gate__title">Открываем артефакт…</h1>
+  <p class="gate__hint" data-share-status>Проверяем защищённую ссылку.</p>
+  <noscript><p class="gate__error">Для открытия этой ссылки нужен JavaScript.</p></noscript>
+</main>
+<script src="/static/js/share-redeem.js" defer></script>
+{% endblock %}

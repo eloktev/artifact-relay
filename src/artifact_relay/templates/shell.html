@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ og_title }}{% endblock %}
+{% block head %}{% include "_og.html" %}{% endblock %}
+{% block body_class %}page-centered{% endblock %}
+{% block body %}
+<main class="gate">
+  <p class="gate__eyebrow">Artifact Relay</p>
+  <h1 class="gate__title">{{ artifact.title }}</h1>
+  {% if og_description %}<p class="gate__hint">{{ og_description }}</p>{% endif %}
+  <p class="gate__hint">Материал доступен после ввода пароля.</p>
+
+  <form class="gate__form" method="post" action="/login">
+    <input type="hidden" name="next" value="{{ next }}">
+    <label class="gate__label" for="password">Пароль</label>
+    <input class="gate__input" id="password" name="password" type="password"
+           autocomplete="current-password" required
+           enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <button class="gate__button" type="submit">Войти</button>
+  </form>
+</main>
+{% endblock %}

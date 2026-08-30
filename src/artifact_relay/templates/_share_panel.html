@@ -1,0 +1,32 @@
+<details class="share-panel">
+  <summary class="share-panel__summary">Поделиться</summary>
+  <div class="share-panel__body">
+    <p class="share-panel__hint">Ссылка откроет только этот артефакт. Пароль не потребуется.</p>
+    <form class="share-panel__create" method="post" action="/a/{{ artifact.id }}/shares">
+      <label for="share-expiry">Срок действия</label>
+      <select id="share-expiry" name="expires_days">
+        <option value="7" selected>7 дней</option>
+        <option value="1">1 день</option>
+        <option value="30">30 дней</option>
+        <option value="0">Без срока</option>
+      </select>
+      <button class="actions__item" type="submit">Создать ссылку</button>
+    </form>
+    {% if active_shares %}
+    <div class="share-panel__active">
+      <h2>Активные ссылки</h2>
+      {% for share in active_shares %}
+      <div class="share-panel__row">
+        <span>
+          {{ share.id }}
+          {% if share.expires_at %}· до {{ share.expires_at | human_date }}{% else %}· без срока{% endif %}
+        </span>
+        <form method="post" action="/a/{{ artifact.id }}/shares/{{ share.id }}/revoke">
+          <button class="actions__item actions__item--quiet" type="submit">Отозвать</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</details>
