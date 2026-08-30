@@ -1,0 +1,5 @@
+services:
+  app:
+    image: "ghcr.io/eloktev/artifact-relay@sha256:${ARTIFACT_RELAY_DIGEST:?Set ARTIFACT_RELAY_DIGEST to the 64-hex manifest digest}"
+    build: !reset null
+    pull_policy: missing

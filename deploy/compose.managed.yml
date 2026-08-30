@@ -1,0 +1,13 @@
+services:
+  app:
+    env_file: !override
+      - "${ARTIFACT_RELAY_TENANT_ENV:?Set ARTIFACT_RELAY_TENANT_ENV to the exported tenant env path}"
+    environment:
+      BASE_URL: ${BASE_URL:?BASE_URL must be present in the exported tenant env}
+      COOKIE_SECURE: "true"
+      SHARE_LINKS_ENABLED: "false"
+      DATA_DIR: /data
+    ports: !override
+      - "127.0.0.1:${ARTIFACT_RELAY_PORT:-8000}:8000"
+    volumes: !override
+      - artifact-data:/data

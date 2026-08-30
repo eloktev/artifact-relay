@@ -36,9 +36,42 @@ The default Compose deployment is intentionally local-only:
 - `SHARE_LINKS_ENABLED=false`;
 - data persists in the named volume `artifact-data`.
 
-The Compose file builds the checkout and gives it the readable tag `artifact-relay:1.0.0`.
-To use a prebuilt image, set `ARTIFACT_RELAY_IMAGE` to an immutable release tag or digest and
-`ARTIFACT_RELAY_PULL_POLICY=missing`. No public image is published by this repository yet.
+The default Compose deployment keeps building the checkout and gives it the readable local tag
+`artifact-relay:1.0.0`. This source-build path remains the default.
+
+A release workflow is prepared to publish multi-architecture images to GHCR from strict `vX.Y.Z`
+tags that match the version in `pyproject.toml`, but **No GHCR image has been published yet.**
+After a release package is visibly available, resolve its manifest-list digest first:
+
+```sh
+docker buildx imagetools inspect ghcr.io/eloktev/artifact-relay:vX.Y.Z --format '{{json .Manifest.Digest}}'
+export ARTIFACT_RELAY_DIGEST='<the 64 hexadecimal characters after sha256:>'
+./scripts/bootstrap.sh
+docker compose -f docker-compose.yml -f deploy/compose.ghcr.yml up -d
+```
+
+The GHCR override constructs only
+`ghcr.io/eloktev/artifact-relay@sha256:${ARTIFACT_RELAY_DIGEST}`. It cannot consume a mutable
+tag, disables the source build, and pulls only when that exact digest is absent locally. Never copy
+a platform-specific child digest from the image index; use the manifest-list digest printed by the
+preflight command. Keep using the localhost quick start above to build from source.
+
+### Managed tenant deployment
+
+The control plane exports a root/operator-only tenant env file. Validate the exact digest and that
+file before rendering, then use all three overrides. The `--env-file` option supplies Compose
+interpolation while `ARTIFACT_RELAY_TENANT_ENV` makes the same exported file the container's
+runtime env file:
+
+```sh
+export ARTIFACT_RELAY_DIGEST='<64 lowercase hexadecimal characters>'
+python deploy/validate_managed_deployment.py "$ARTIFACT_RELAY_DIGEST" /secure/tenant.env
+ARTIFACT_RELAY_TENANT_ENV=/secure/tenant.env docker compose --env-file /secure/tenant.env -f docker-compose.yml -f deploy/compose.ghcr.yml -f deploy/compose.managed.yml config
+ARTIFACT_RELAY_TENANT_ENV=/secure/tenant.env docker compose --env-file /secure/tenant.env -f docker-compose.yml -f deploy/compose.ghcr.yml -f deploy/compose.managed.yml up -d --wait --wait-timeout 120 app
+```
+
+The managed override requires the exported HTTPS `BASE_URL`, forces secure cookies, disables
+share links, binds the application only to loopback, and persists `/data` in `artifact-data`.
 
 ## VPS deployment
 
