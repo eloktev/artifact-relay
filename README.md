@@ -21,6 +21,9 @@ hermes artifact-relay setup
 [Connect with Hermes](https://relay.lok-labs.com/) to start device authorization. Hermes stores the
 credential outside chat and model output, verifies the endpoint, and publishes a test artifact.
 
+Using Hermes Desktop? [Install the plugin in one click](hermes://plugin/install?repo=eloktev/hermes-artifact-relay&enable=1),
+then run `hermes artifact-relay setup`. Hermes always shows a confirmation dialog before installing.
+
 **Managed beta — free during beta. Planned price: $24/year. Limited availability.** Early customer
 instances use separate containers, volumes, hostnames, and credentials. Self-hosting remains fully
 supported below.

@@ -7,6 +7,10 @@
   <meta name="description" content="Publish long AI-agent results into a private, durable library. Run Artifact Relay on localhost or a Linux VPS.">
   <meta property="og:title" content="Artifact Relay — Private artifact delivery for AI agents">
   <meta property="og:description" content="A private-by-default gateway for Markdown, standalone HTML, and selective sharing.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://eloktev.github.io/artifact-relay/">
+  <meta property="og:image" content="https://eloktev.github.io/artifact-relay/assets/artifact-library.webp">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#090b0a">
   <link rel="canonical" href="https://eloktev.github.io/artifact-relay/">
   <link rel="stylesheet" href="styles.css">
@@ -191,6 +195,7 @@ docker compose \
           <h2 id="plugin-title">Give Hermes a private delivery path.</h2>
           <p>The portable plugin registers two tools and includes a skill that turns long results into concise private links. Hosted setup uses device authorization and keeps the publish credential out of the browser, chat, model output, and ordinary config.</p>
           <div class="tool-pills"><span class="tool-pill">artifact_publish</span><span class="tool-pill">artifact_read</span></div>
+          <div class="actions"><a class="button button-primary" href="hermes://plugin/install?repo=eloktev/hermes-artifact-relay&amp;enable=1">Install in Hermes Desktop</a><a class="button button-secondary" href="https://github.com/eloktev/hermes-artifact-relay">Review plugin source</a></div>
         </div>
         <div class="code"><button class="copy" type="button" data-copy="plugin-code" data-copy-success="Hermes plugin commands copied" aria-label="Copy Hermes plugin commands">Copy</button><pre id="plugin-code" tabindex="0">hermes plugins install eloktev/hermes-artifact-relay
 hermes artifact-relay setup</pre></div>
@@ -202,7 +207,7 @@ hermes artifact-relay setup</pre></div>
         <p class="eyebrow">Artifact Relay v1.1.0</p>
         <h2 id="final-title">Ask your agent to connect it.</h2>
         <p>Use the managed beta when you want the private library without operating a server, or inspect the source and self-host the same artifact service.</p>
-        <div class="actions"><a class="button button-primary" href="https://relay.lok-labs.com/">Connect with Hermes</a><a class="button button-secondary" href="https://github.com/eloktev/artifact-relay">View source on GitHub</a></div>
+        <div class="actions"><a class="button button-primary" href="https://relay.lok-labs.com/">Connect with Hermes</a><a class="button button-secondary" href="https://github.com/eloktev/artifact-relay">View &amp; star on GitHub</a></div>
         <div class="release-links"><a href="https://github.com/eloktev/artifact-relay/blob/main/LICENSE">MIT license</a><a href="https://github.com/eloktev/artifact-relay/blob/main/SECURITY.md">Security policy</a><a href="https://github.com/eloktev/artifact-relay/releases/tag/v1.1.0">Release notes</a><a href="https://github.com/eloktev/hermes-artifact-relay">Hermes plugin</a></div>
       </div>
     </section>

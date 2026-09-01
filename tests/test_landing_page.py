@@ -96,6 +96,7 @@ def test_landing_copy_matches_verified_positioning() -> None:
     assert "https://github.com/eloktev/hermes-artifact-relay" in hrefs
     assert "https://github.com/eloktev/artifact-relay/releases/tag/v1.1.0" in hrefs
     assert "https://relay.lok-labs.com/" in hrefs
+    assert "hermes://plugin/install?repo=eloktev/hermes-artifact-relay&enable=1" in hrefs
 
     primary_links = [
         attrs.get("href")
@@ -114,6 +115,13 @@ def test_landing_has_accessible_semantic_shell() -> None:
     assert '<meta name="description"' in source
     assert '<meta property="og:title"' in source
     assert '<meta property="og:description"' in source
+    assert '<meta property="og:type" content="website">' in source
+    assert '<meta property="og:url" content="https://eloktev.github.io/artifact-relay/">' in source
+    assert (
+        '<meta property="og:image" '
+        'content="https://eloktev.github.io/artifact-relay/assets/artifact-library.webp">' in source
+    )
+    assert '<meta name="twitter:card" content="summary_large_image">' in source
     assert '<link rel="canonical" href="https://eloktev.github.io/artifact-relay/">' in source
     assert tags.count("h1") == 1
     assert "header" in tags
