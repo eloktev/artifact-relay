@@ -7,6 +7,10 @@ to one artifact without exposing the private library.
 
 **Website:** <https://eloktev.github.io/artifact-relay/>
 
+[![Artifact Relay private library showing topic filters, favorites, and recent Markdown and HTML artifacts](site/assets/artifact-library.webp)](https://eloktev.github.io/artifact-relay/)
+
+*Product UI illustration with synthetic report titles; it represents the v1.1.0 library, not customer evidence.*
+
 ## Managed beta
 
 **Don’t deploy Artifact Relay. Ask your agent to connect it.** The recommended path gives you a
