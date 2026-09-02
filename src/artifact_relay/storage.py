@@ -334,6 +334,30 @@ class ArtifactStore:
             ).fetchall()
         return [self._row_to_artifact(row) for row in rows]
 
+    def topic_aliases(self) -> dict[tuple[str, str, str], str]:
+        with connect(self.db_path) as conn:
+            rows = conn.execute(
+                "SELECT platform, chat_name, topic_id, topic_name FROM topic_aliases"
+            ).fetchall()
+        return {
+            (row["platform"], row["chat_name"], row["topic_id"]): row["topic_name"] for row in rows
+        }
+
+    def set_topic_alias(
+        self, *, platform: str, chat_name: str, topic_id: str, topic_name: str
+    ) -> None:
+        name = topic_name.strip()
+        if not topic_id or not name:
+            raise ValueError("topic id and name are required")
+        with connect(self.db_path) as conn:
+            conn.execute(
+                "INSERT INTO topic_aliases (platform, chat_name, topic_id, topic_name)"
+                " VALUES (?, ?, ?, ?)"
+                " ON CONFLICT(platform, chat_name, topic_id)"
+                " DO UPDATE SET topic_name = excluded.topic_name",
+                (platform, chat_name, topic_id, name),
+            )
+
     def get_share(self, share_id: str) -> ShareLink | None:
         with connect(self.db_path) as conn:
             row = conn.execute("SELECT * FROM share_links WHERE id = ?", (share_id,)).fetchone()
