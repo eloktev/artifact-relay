@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from typing import Annotated
+from urllib.parse import urlencode
 
-from fastapi import APIRouter, HTTPException, Request, Response, status
+from fastapi import APIRouter, Form, HTTPException, Query, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.responses import Response as RawResponse
 
@@ -229,25 +231,67 @@ def shared_embed_asset_by_bare_name(
 
 
 @router.get("/", response_class=HTMLResponse)
-def index(request: Request) -> Response:
+def index(
+    request: Request,
+    platform: str | None = Query(default=None, max_length=512),
+    chat_name: str | None = Query(default=None, max_length=512),
+    topic_id: str | None = Query(default=None, max_length=512),
+) -> Response:
     if not has_session(request):
         return RedirectResponse("/login", status_code=status.HTTP_303_SEE_OTHER)
 
-    artifacts = get_store(request).list_live()
-    topic_groups: dict[tuple[str, str], dict[str, object]] = {}
-    for artifact in artifacts:
-        topic_label = artifact.topic_name or (
-            f"Топик {artifact.topic_id}" if artifact.topic_id else "Без топика"
+    store = get_store(request)
+    all_artifacts = store.list_live()
+    aliases = store.topic_aliases()
+    topic_labels: dict[str, str] = {}
+    topic_groups: dict[tuple[str, str, str], dict[str, object]] = {}
+    for artifact in all_artifacts:
+        key = (artifact.platform or "", artifact.chat_name or "", artifact.topic_id or "")
+        topic_label = (
+            aliases.get(key)
+            or artifact.topic_name
+            or (f"Топик {artifact.topic_id}" if artifact.topic_id else "Без топика")
         )
+        topic_labels[artifact.id] = topic_label
         chat_label = artifact.chat_name or artifact.platform or "Без источника"
-        key = (chat_label, topic_label)
         group = topic_groups.setdefault(
             key,
-            {"chat_name": chat_label, "topic_name": topic_label, "count": 0},
+            {
+                "platform": artifact.platform or "",
+                "chat_name": chat_label,
+                "chat_value": artifact.chat_name or "",
+                "topic_id": artifact.topic_id or "",
+                "topic_name": topic_label,
+                "href": "/?"
+                + urlencode(
+                    {
+                        "platform": artifact.platform or "",
+                        "chat_name": artifact.chat_name or "",
+                        "topic_id": artifact.topic_id or "",
+                    }
+                ),
+                "count": 0,
+            },
         )
         count = group["count"]
         if isinstance(count, int):
             group["count"] = count + 1
+        if key not in aliases and artifact.topic_name:
+            group["topic_name"] = artifact.topic_name
+
+    selected_key = None
+    if platform is not None and chat_name is not None and topic_id is not None:
+        selected_key = (platform, chat_name, topic_id)
+    artifacts = (
+        [
+            artifact
+            for artifact in all_artifacts
+            if (artifact.platform or "", artifact.chat_name or "", artifact.topic_id or "")
+            == selected_key
+        ]
+        if selected_key is not None
+        else all_artifacts
+    )
 
     return templates.TemplateResponse(
         request,
@@ -256,8 +300,38 @@ def index(request: Request) -> Response:
             "artifacts": artifacts,
             "favorites": [artifact for artifact in artifacts if artifact.favorite],
             "topics": list(topic_groups.values()),
+            "selected_topic": topic_groups.get(selected_key) if selected_key else None,
+            "topic_labels": topic_labels,
             "settings": get_settings(request),
         },
+    )
+
+
+@router.post("/topics/name")
+def set_topic_name(
+    request: Request,
+    platform: Annotated[str, Form(max_length=512)],
+    chat_name: Annotated[str, Form(max_length=512)],
+    topic_id: Annotated[str, Form(min_length=1, max_length=512)],
+    topic_name: Annotated[str, Form(min_length=1, max_length=512)],
+) -> Response:
+    require_session(request)
+    store = get_store(request)
+    identity = (platform, chat_name, topic_id)
+    if not any(
+        (artifact.platform or "", artifact.chat_name or "", artifact.topic_id or "") == identity
+        for artifact in store.list_live()
+    ):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    store.set_topic_alias(
+        platform=platform,
+        chat_name=chat_name,
+        topic_id=topic_id,
+        topic_name=topic_name,
+    )
+    return RedirectResponse(
+        "/?" + urlencode({"platform": platform, "chat_name": chat_name, "topic_id": topic_id}),
+        status_code=status.HTTP_303_SEE_OTHER,
     )
 
 

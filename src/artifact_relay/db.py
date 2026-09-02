@@ -11,7 +11,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS artifacts (
@@ -52,6 +52,14 @@ CREATE TABLE IF NOT EXISTS share_links (
 );
 
 CREATE INDEX IF NOT EXISTS idx_share_links_artifact ON share_links (artifact_id);
+
+CREATE TABLE IF NOT EXISTS topic_aliases (
+    platform   TEXT NOT NULL,
+    chat_name  TEXT NOT NULL,
+    topic_id   TEXT NOT NULL,
+    topic_name TEXT NOT NULL,
+    PRIMARY KEY (platform, chat_name, topic_id)
+);
 """
 
 

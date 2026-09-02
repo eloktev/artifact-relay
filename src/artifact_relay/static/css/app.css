@@ -271,8 +271,16 @@ a:hover { text-decoration-thickness: 2px; }
 .artifact-card__topic { margin: 0; color: var(--ink-muted); font-size: 0.78rem; }
 
 .topic-list { display: flex; flex-wrap: wrap; gap: 0.55rem; }
-.topic-pill { display: flex; gap: 0.65rem; align-items: center; padding: 0.5rem 0.75rem; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-muted); font-size: 0.82rem; }
+.topic-pill { display: flex; gap: 0.65rem; align-items: center; padding: 0.5rem 0.75rem; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-muted); font-size: 0.82rem; text-decoration: none; }
+.topic-pill:hover, .topic-pill--selected { border-color: var(--ink); color: var(--ink); }
 .topic-pill strong { color: var(--ink); }
+
+.library-section__heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.library-section__heading h2 { margin: 0; font-family: var(--font-prose); font-size: 1.35rem; }
+.library-section__heading a { font-size: 0.82rem; }
+.topic-name-form { display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem; margin: 0 0 1rem; }
+.topic-name-form label { color: var(--ink-muted); font-size: 0.82rem; }
+.topic-name-form input:not([type="hidden"]) { min-width: min(100%, 16rem); padding: 0.4rem 0.55rem; border: 1px solid var(--rule-strong); background: var(--bg); color: var(--ink); font: inherit; }
 
 .artifact-list { border-top: 1px solid var(--rule); }
 .artifact-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: start; padding: 1rem 0; border-bottom: 1px solid var(--rule); }

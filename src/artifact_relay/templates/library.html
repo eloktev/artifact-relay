@@ -24,7 +24,7 @@
         {% if artifact.session_title %}<p class="artifact-card__session">{{ artifact.session_title }}</p>{% endif %}
         <p class="artifact-card__topic">
           {{ artifact.chat_name or artifact.platform or "Без источника" }} ·
-          {{ artifact.topic_name or ("Топик " ~ artifact.topic_id if artifact.topic_id else "Без топика") }}
+          {{ topic_labels.get(artifact.id) }}
         </p>
       </article>
       {% endfor %}
@@ -37,17 +37,30 @@
     {% if topics %}
     <div class="topic-list">
       {% for topic in topics %}
-      <div class="topic-pill">
+      <a class="topic-pill{% if selected_topic and selected_topic.href == topic.href %} topic-pill--selected{% endif %}" href="{{ topic.href }}">
         <span>{{ topic.chat_name }} · {{ topic.topic_name }}</span>
         <strong>{{ topic.count }}</strong>
-      </div>
+      </a>
       {% endfor %}
     </div>
     {% else %}<p class="library__empty">Пока нет артефактов.</p>{% endif %}
   </section>
 
   <section class="library-section" aria-labelledby="all-title">
-    <h2 id="all-title">Все артефакты</h2>
+    <div class="library-section__heading">
+      <h2 id="all-title">{% if selected_topic %}{{ selected_topic.topic_name }}{% else %}Все артефакты{% endif %}</h2>
+      {% if selected_topic %}<a href="/">Сбросить фильтр</a>{% endif %}
+    </div>
+    {% if selected_topic and selected_topic.topic_id %}
+    <form class="topic-name-form" method="post" action="/topics/name">
+      <input type="hidden" name="platform" value="{{ selected_topic.platform }}">
+      <input type="hidden" name="chat_name" value="{{ selected_topic.chat_value }}">
+      <input type="hidden" name="topic_id" value="{{ selected_topic.topic_id }}">
+      <label for="topic-name">Название топика</label>
+      <input id="topic-name" name="topic_name" value="{{ selected_topic.topic_name }}" maxlength="512" required>
+      <button class="actions__item" type="submit">Сохранить</button>
+    </form>
+    {% endif %}
     <div class="artifact-list">
       {% for artifact in artifacts %}
       <article class="artifact-row">
@@ -56,7 +69,7 @@
           {% if artifact.session_title %}<p>{{ artifact.session_title }}</p>{% endif %}
         </div>
         <div class="artifact-row__meta">
-          <span>{{ artifact.topic_name or ("Топик " ~ artifact.topic_id if artifact.topic_id else "Без топика") }}</span>
+          <span>{{ topic_labels.get(artifact.id) }}</span>
           <time datetime="{{ artifact.created_at.isoformat() }}">{{ artifact.created_at | human_date }}</time>
         </div>
       </article>

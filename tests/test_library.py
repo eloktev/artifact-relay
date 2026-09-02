@@ -117,6 +117,66 @@ def test_logged_in_home_lists_favorites_first_with_provenance(logged_in, publish
     assert first["id"] in response.text
 
 
+def test_home_filters_artifacts_by_selected_topic(logged_in, publish):  # type: ignore[no-untyped-def]
+    selected = publish(
+        title="Artifact Relay roadmap",
+        platform="telegram",
+        chat_name="ЦУП",
+        topic_id="7591",
+    ).json()
+    other = publish(
+        title="Unrelated report",
+        platform="telegram",
+        chat_name="ЦУП",
+        topic_id="745",
+    ).json()
+
+    response = logged_in.get(
+        "/",
+        params={"platform": "telegram", "chat_name": "ЦУП", "topic_id": "7591"},
+    )
+
+    assert response.status_code == 200
+    assert selected["id"] in response.text
+    assert other["id"] not in response.text
+    assert "Сбросить фильтр" in response.text
+
+
+def test_topic_alias_is_human_readable_and_applies_to_future_artifacts(logged_in, publish):  # type: ignore[no-untyped-def]
+    publish(
+        title="First artifact",
+        platform="telegram",
+        chat_name="ЦУП",
+        topic_id="7591",
+    )
+
+    renamed = logged_in.post(
+        "/topics/name",
+        data={
+            "platform": "telegram",
+            "chat_name": "ЦУП",
+            "topic_id": "7591",
+            "topic_name": "Artifact Relay",
+        },
+        follow_redirects=False,
+    )
+
+    assert renamed.status_code == 303
+    assert "topic_id=7591" in renamed.headers["location"]
+
+    future = publish(
+        title="Future artifact",
+        platform="telegram",
+        chat_name="ЦУП",
+        topic_id="7591",
+    ).json()
+    response = logged_in.get("/")
+
+    assert future["id"] in response.text
+    assert "Artifact Relay" in response.text
+    assert "Топик 7591" not in response.text
+
+
 def test_favorite_requires_viewer_session(client, publish):  # type: ignore[no-untyped-def]
     artifact_id = publish().json()["id"]
 
