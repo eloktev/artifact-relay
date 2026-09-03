@@ -7,6 +7,8 @@ to one artifact without exposing the private library.
 
 **Website:** <https://eloktev.github.io/artifact-relay/>
 
+[Install for Hermes Desktop](hermes://plugin/install?repo=eloktev/hermes-artifact-relay&enable=1) · [Try the managed beta](https://relay.lok-labs.com/) · [Star Artifact Relay on GitHub](https://github.com/eloktev/artifact-relay)
+
 [![Artifact Relay private library showing topic filters, favorites, and recent Markdown and HTML artifacts](site/assets/artifact-library.webp)](https://eloktev.github.io/artifact-relay/)
 
 *Product UI illustration with synthetic report titles; it represents the v1.1.0 library, not customer evidence.*
