@@ -11,7 +11,7 @@ to one artifact without exposing the private library.
 
 [![Artifact Relay private library showing topic filters, favorites, and recent Markdown and HTML artifacts](site/assets/artifact-library.webp)](https://eloktev.github.io/artifact-relay/)
 
-*Product UI illustration with synthetic report titles; it represents the v1.1.0 library, not customer evidence.*
+*Product UI illustration with synthetic report titles; it represents the v1.2.0 library, not customer evidence.*
 
 ## Managed beta
 
@@ -44,7 +44,7 @@ supported below.
 Requirements: Docker Engine with Compose v2, OpenSSL, and a POSIX shell.
 
 ```sh
-docker build -t artifact-relay:1.1.0 .
+docker build -t artifact-relay:1.2.0 .
 ./scripts/bootstrap.sh
 docker compose up -d
 docker compose ps
@@ -64,11 +64,11 @@ The default Compose deployment is intentionally local-only:
 - data persists in the named volume `artifact-data`.
 
 The default Compose deployment keeps building the checkout and gives it the readable local tag
-`artifact-relay:1.1.0`. This source-build path remains the default.
+`artifact-relay:1.2.0`. This source-build path remains the default.
 
 Release tags publish multi-architecture images to GHCR only from strict `vX.Y.Z` tags that match
-the version in `pyproject.toml`. For release `v1.1.0`, inspect
-`ghcr.io/eloktev/artifact-relay:v1.1.0` and resolve its manifest-list digest before deployment:
+the version in `pyproject.toml`. For release `v1.2.0`, inspect
+`ghcr.io/eloktev/artifact-relay:v1.2.0` and resolve its manifest-list digest before deployment:
 
 ```sh
 docker buildx imagetools inspect ghcr.io/eloktev/artifact-relay:vX.Y.Z --format '{{json .Manifest.Digest}}'

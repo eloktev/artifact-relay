@@ -79,7 +79,7 @@ def test_landing_copy_matches_verified_positioning() -> None:
         "hosted and maintained for you",
         "Why not",
         "MIT",
-        "v1.1.0",
+        "v1.2.0",
         "Setup result",
     )
     for phrase in required_copy:
@@ -94,7 +94,7 @@ def test_landing_copy_matches_verified_positioning() -> None:
     hrefs = {attrs.get("href") for attrs in links}
     assert "https://github.com/eloktev/artifact-relay" in hrefs
     assert "https://github.com/eloktev/hermes-artifact-relay" in hrefs
-    assert "https://github.com/eloktev/artifact-relay/releases/tag/v1.1.0" in hrefs
+    assert "https://github.com/eloktev/artifact-relay/releases/tag/v1.2.0" in hrefs
     assert "https://relay.lok-labs.com/" in hrefs
     assert "hermes://plugin/install?repo=eloktev/hermes-artifact-relay&enable=1" in hrefs
 
