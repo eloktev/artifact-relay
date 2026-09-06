@@ -126,11 +126,41 @@ h2 { max-width: 820px; margin: 0; font-size: clamp(2.2rem, 5vw, 4.5rem); line-he
 .site-footer { border-top: 1px solid var(--line); padding: 2rem 0; }
 .footer-inner { display: flex; justify-content: space-between; gap: 1rem; color: var(--faint); font-size: .78rem; }
 
+/* Self-host first-value guide. */
+.guide-hero { padding-block: clamp(5rem, 10vw, 8rem); }
+.guide-hero h1 { max-width: 940px; }
+.guide-hero .hero-copy { max-width: 760px; }
+.guide-section { display: grid; gap: clamp(2rem, 5vw, 4rem); }
+.guide-section > * { min-width: 0; }
+.guide-heading { display: grid; grid-template-columns: .65fr 1.35fr; gap: 3rem; }
+.prerequisites { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.prerequisites h3, .credential-note h3 { margin: 0 0 .75rem; }
+.prerequisites ul { display: flex; flex-wrap: wrap; gap: .6rem; margin: 0; padding: 0; list-style: none; }
+.prerequisites li { padding: .4rem .7rem; border: 1px solid var(--line-strong); border-radius: 99px; color: var(--muted); font-size: .84rem; }
+.steps { display: grid; gap: 1rem; margin: 0; padding: 0; list-style: none; }
+.step-card { display: grid; grid-template-columns: minmax(280px, .8fr) minmax(0, 1.2fr); gap: 2rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.step-card .code { align-self: start; margin: 0; min-width: 0; }
+.step-copy { display: flex; gap: 1rem; }
+.step-copy h3 { margin: 0; font-size: 1.15rem; }
+.step-copy p { margin: .5rem 0 0; color: var(--muted); font-size: .9rem; }
+.step-number { flex: 0 0 auto; display: inline-grid; width: 2rem; height: 2rem; place-items: center; border: 1px solid #29593a; border-radius: 50%; color: var(--green); font: .72rem var(--mono); }
+.credential-note { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid #29593a; border-radius: 12px; background: var(--green-dark); }
+.credential-note p, .callout { margin: 0; color: #b6c7bc; }
+.code-large pre { padding-right: 5rem; white-space: pre; }
+.callout { padding-left: 1rem; border-left: 2px solid var(--green); }
+.cleanup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.danger-card { border-color: #5b3a35; }
+.doc-links { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.doc-links a { display: grid; padding: 1.25rem; border: 1px solid var(--line); border-radius: 9px; text-decoration: none; background: var(--panel); }
+.doc-links a:hover { border-color: var(--green); }
+.doc-links span { color: var(--muted); font-size: .84rem; }
+.compact-final { padding-block: clamp(4rem, 8vw, 7rem); }
+
 @media (max-width: 820px) {
   .nav-links a:not(.nav-github) { display: none; }
   .hero { min-height: auto; grid-template-columns: 1fr; gap: 3rem; }
   .hero-visual { max-width: 640px; }
-  .section-head, .boundary, .plugin { grid-template-columns: 1fr; }
+  .section-head, .boundary, .plugin, .guide-heading { grid-template-columns: 1fr; }
   .proof-grid { grid-template-columns: 1fr; }
   .proof { min-height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
   .proof:last-child { border-bottom: 0; }
@@ -138,6 +168,7 @@ h2 { max-width: 820px; margin: 0; font-size: clamp(2.2rem, 5vw, 4.5rem); line-he
   .surface-grid { grid-template-columns: 1fr; }
   .surface-notes { grid-template-columns: repeat(3, 1fr); }
   .install-grid { grid-template-columns: 1fr; }
+  .step-card { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 560px) {
@@ -153,6 +184,10 @@ h2 { max-width: 820px; margin: 0; font-size: clamp(2.2rem, 5vw, 4.5rem); line-he
   .compare th, .compare td { min-width: 160px; }
   .compare td:first-child { min-width: 140px; }
   .footer-inner { flex-direction: column; }
+  .guide-nav a:not(.nav-github) { display: none; }
+  .cleanup-grid, .doc-links { grid-template-columns: 1fr; }
+  .code-large pre { padding-right: 4rem; }
+  .copy { min-width: 44px; min-height: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

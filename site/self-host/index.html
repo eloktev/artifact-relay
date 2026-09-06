@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Self-host Artifact Relay — From clone to first Markdown artifact</title>
+  <meta name="description" content="Build Artifact Relay v1.2.0 from source, start it locally with Docker Compose, and publish your first private Markdown artifact.">
+  <meta property="og:title" content="Self-host Artifact Relay from source">
+  <meta property="og:description" content="A tested path from clone to your first private Markdown artifact with Artifact Relay v1.2.0 and Docker Compose.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://artifact-relay.lok-labs.com/self-host/">
+  <meta property="og:image" content="https://artifact-relay.lok-labs.com/assets/artifact-library.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Self-host Artifact Relay from source">
+  <meta name="twitter:description" content="Clone, build, start, and publish your first private Markdown artifact.">
+  <meta name="twitter:image" content="https://artifact-relay.lok-labs.com/assets/artifact-library.webp">
+  <meta name="theme-color" content="#090b0a">
+  <link rel="canonical" href="https://artifact-relay.lok-labs.com/self-host/">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Self-host Artifact Relay and publish a Markdown artifact",
+      "description": "Build the v1.2.0 source checkout, create local credentials, start Artifact Relay with Docker Compose, and publish a small Markdown file.",
+      "url": "https://artifact-relay.lok-labs.com/self-host/",
+      "totalTime": "PT10M",
+      "supply": [
+        {"@type": "HowToSupply", "name": "A computer running Docker Engine"}
+      ],
+      "tool": [
+        {"@type": "HowToTool", "name": "Docker Engine with Compose v2"},
+        {"@type": "HowToTool", "name": "Git"},
+        {"@type": "HowToTool", "name": "OpenSSL"},
+        {"@type": "HowToTool", "name": "POSIX shell"},
+        {"@type": "HowToTool", "name": "curl and Python 3"}
+      ],
+      "step": [
+        {"@type": "HowToStep", "position": 1, "name": "Check prerequisites", "text": "Install Git, Docker Engine with Compose v2, OpenSSL, curl, Python 3, and a POSIX shell."},
+        {"@type": "HowToStep", "position": 2, "name": "Clone the source", "text": "Clone the Artifact Relay repository and enter its directory."},
+        {"@type": "HowToStep", "position": 3, "name": "Select release v1.2.0", "text": "Check out the immutable v1.2.0 release tag."},
+        {"@type": "HowToStep", "position": 4, "name": "Build the image", "text": "Build the source checkout as artifact-relay:1.2.0."},
+        {"@type": "HowToStep", "position": 5, "name": "Create credentials", "text": "Run the bootstrap script and enter a viewer password when prompted."},
+        {"@type": "HowToStep", "position": 6, "name": "Start and verify", "text": "Start Docker Compose and call the unauthenticated health endpoint."},
+        {"@type": "HowToStep", "position": 7, "name": "Publish Markdown", "text": "Load the generated API token into the shell without displaying it, publish a sample Markdown file, and open the opaque URL returned by the API."}
+      ]
+    }
+  </script>
+  <link rel="stylesheet" href="../styles.css?v=20260906-self-host">
+  <script src="../script.js?v=20260906-self-host" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary navigation">
+      <a class="brand" href="../" aria-label="Artifact Relay home"><span class="brand-mark" aria-hidden="true"></span>Artifact Relay</a>
+      <div class="nav-links guide-nav">
+        <a href="#install">Install</a>
+        <a href="#publish">Publish</a>
+        <a href="#operate">Operate</a>
+        <a class="nav-github" href="https://github.com/eloktev/artifact-relay">GitHub ↗</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="container guide-hero">
+      <p class="eyebrow">Self-host · source build · v1.2.0</p>
+      <h1>Self-host Artifact Relay. Publish something useful.</h1>
+      <p class="hero-copy">This localhost path takes you from a versioned source checkout to one private Markdown artifact. Docker binds the service to <code>127.0.0.1</code>, and sharing stays disabled by default.</p>
+      <div class="actions">
+        <a class="button button-primary" href="#install">Start the guide</a>
+        <a class="button button-secondary" href="https://github.com/eloktev/artifact-relay#localhost-quick-start">Read the README</a>
+      </div>
+      <p class="hero-note">About 10 minutes after prerequisites · macOS or Linux host · no public server required</p>
+    </div>
+
+    <section id="install" aria-labelledby="install-title">
+      <div class="section container guide-section">
+        <div class="guide-heading">
+          <p class="kicker">01 / Build and start</p>
+          <div><h2 id="install-title">A pinned checkout, local credentials, one container.</h2><p class="lede">Run these commands in a terminal. The bootstrap step asks for a viewer password of at least 12 characters without echoing it and writes generated credentials to a mode-0600 <code>.env</code> file.</p></div>
+        </div>
+
+        <aside class="prerequisites" aria-labelledby="prerequisites-title">
+          <h3 id="prerequisites-title">Prerequisites</h3>
+          <ul>
+            <li>Git</li>
+            <li>Docker Engine with Compose v2</li>
+            <li>OpenSSL and a POSIX shell</li>
+            <li><code>curl</code> and Python 3 for the publish step</li>
+          </ul>
+        </aside>
+
+        <ol class="steps">
+          <li class="step-card">
+            <div class="step-copy"><span class="step-number">1</span><div><h3>Clone the repository and pin v1.2.0</h3><p>The release tag makes this guide reproducible instead of following a moving branch.</p></div></div>
+            <div class="code"><button class="copy" type="button" data-copy="clone-code" data-copy-success="Clone commands copied" aria-label="Copy clone commands">Copy</button><pre id="clone-code" tabindex="0">git clone https://github.com/eloktev/artifact-relay.git
+cd artifact-relay
+git checkout v1.2.0</pre></div>
+          </li>
+          <li class="step-card">
+            <div class="step-copy"><span class="step-number">2</span><div><h3>Build the application image</h3><p>The supported default path builds the selected source checkout locally.</p></div></div>
+            <div class="code"><button class="copy" type="button" data-copy="build-code" data-copy-success="Build command copied" aria-label="Copy build command">Copy</button><pre id="build-code" tabindex="0">docker build -t artifact-relay:1.2.0 .</pre></div>
+          </li>
+          <li class="step-card">
+            <div class="step-copy"><span class="step-number">3</span><div><h3>Bootstrap private credentials</h3><p>Choose the password you will use in the browser. The script separately generates the API token and session signing key; it never stores the plaintext viewer password.</p></div></div>
+            <div class="code"><button class="copy" type="button" data-copy="bootstrap-code" data-copy-success="Bootstrap command copied" aria-label="Copy bootstrap command">Copy</button><pre id="bootstrap-code" tabindex="0">./scripts/bootstrap.sh</pre></div>
+          </li>
+          <li class="step-card">
+            <div class="step-copy"><span class="step-number">4</span><div><h3>Start and check health</h3><p>A successful health request returns a small JSON response without secret data.</p></div></div>
+            <div class="code"><button class="copy" type="button" data-copy="start-code" data-copy-success="Start commands copied" aria-label="Copy start and health-check commands">Copy</button><pre id="start-code" tabindex="0">docker compose up -d
+docker compose ps
+curl -fsS http://localhost:8000/api/health</pre></div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="publish" aria-labelledby="publish-title">
+      <div class="section container guide-section">
+        <div class="guide-heading">
+          <p class="kicker">02 / First value</p>
+          <div><h2 id="publish-title">Publish a small Markdown artifact.</h2><p class="lede">This snippet creates a temporary file, loads the generated environment without printing it, sends the token only in the authorization header, extracts the returned opaque URL, and opens it.</p></div>
+        </div>
+
+        <div class="credential-note">
+          <h3>Two credentials, two jobs</h3>
+          <p>Your <strong>viewer password</strong> creates a browser session for the private library. The generated <strong>API token</strong> authorizes publishing and API reads or deletes. Do not paste either credential into an artifact, chat, command output, or source control.</p>
+        </div>
+
+        <div class="code code-large"><button class="copy" type="button" data-copy="publish-code" data-copy-success="Publish commands copied" aria-label="Copy Markdown publish commands">Copy</button><pre id="publish-code" tabindex="0">SAMPLE_FILE="$(mktemp)"
+trap 'rm -f "$SAMPLE_FILE"' EXIT
+printf '# First relay\n\nPublished from my self-hosted Artifact Relay.\n' &gt; "$SAMPLE_FILE"
+
+set -a
+. ./.env
+set +a
+RESPONSE="$(curl -fsS -X POST http://localhost:8000/api/artifacts \
+  -H "Authorization: Bearer ${ARTIFACT_API_TOKEN}" \
+  -F 'title=First relay' \
+  -F 'summary=Local installation check' \
+  -F 'format=markdown' \
+  -F 'expires_in_days=30' \
+  -F "content=@${SAMPLE_FILE};filename=first-relay.md;type=text/markdown")"
+unset ARTIFACT_API_TOKEN SESSION_SECRET_KEY VIEW_PASSWORD_HASH
+
+ARTIFACT_URL="$(printf '%s' "$RESPONSE" | \
+  python3 -c 'import json,sys; print(json.load(sys.stdin)["url"])')"
+printf 'Published: %s\n' "$ARTIFACT_URL"
+if command -v open &gt;/dev/null; then
+  open "$ARTIFACT_URL"
+else
+  xdg-open "$ARTIFACT_URL"
+fi</pre></div>
+        <p class="callout">The artifact page asks for the viewer password you chose during bootstrap. Its path contains an opaque artifact ID, but the page remains private until you log in.</p>
+      </div>
+    </section>
+
+    <section id="operate" aria-labelledby="operate-title">
+      <div class="section container guide-section">
+        <div class="guide-heading">
+          <p class="kicker">03 / Stop or continue</p>
+          <div><h2 id="operate-title">Keep the data, or remove it deliberately.</h2><p class="lede">Stopping containers preserves artifacts in the named Docker volume. Deleting the volume is irreversible.</p></div>
+        </div>
+        <div class="cleanup-grid">
+          <article class="install-card">
+            <h3>Stop, keep data</h3>
+            <p>Stop and remove containers while retaining the <code>artifact-data</code> volume and your local <code>.env</code>.</p>
+            <div class="code"><button class="copy" type="button" data-copy="stop-code" data-copy-success="Stop command copied" aria-label="Copy stop command">Copy</button><pre id="stop-code" tabindex="0">docker compose down</pre></div>
+          </article>
+          <article class="install-card danger-card">
+            <h3>Delete local data</h3>
+            <p>Only when you no longer need any artifacts, remove containers and the persistent volume, then remove the credential file.</p>
+            <div class="code"><button class="copy" type="button" data-copy="delete-code" data-copy-success="Cleanup commands copied" aria-label="Copy destructive cleanup commands">Copy</button><pre id="delete-code" tabindex="0">docker compose down --volumes
+rm .env</pre></div>
+          </article>
+        </div>
+
+        <nav class="doc-links" aria-label="Self-hosting documentation">
+          <a href="https://github.com/eloktev/artifact-relay#localhost-quick-start"><strong>README</strong><span>Configuration and API reference →</span></a>
+          <a href="https://github.com/eloktev/artifact-relay/blob/main/docs/VPS.md"><strong>Linux VPS</strong><span>HTTPS deployment behind Caddy →</span></a>
+          <a href="https://github.com/eloktev/artifact-relay/blob/main/SECURITY.md"><strong>Security</strong><span>Deployment controls and reporting →</span></a>
+          <a href="https://github.com/eloktev/artifact-relay/blob/main/docs/BACKUP_RESTORE.md"><strong>Backup and restore</strong><span>Protect the data volume and credentials →</span></a>
+        </nav>
+      </div>
+    </section>
+
+    <section aria-labelledby="managed-title">
+      <div class="section container final compact-final">
+        <p class="eyebrow">Prefer not to operate it?</p>
+        <h2 id="managed-title">The managed beta remains the shortest path.</h2>
+        <p>Hermes can connect an isolated instance hosted and maintained for you. Self-hosting remains fully supported when you want to own the runtime and data.</p>
+        <div class="actions"><a class="button button-primary" href="https://relay.lok-labs.com/">Connect with Hermes</a><a class="button button-secondary" href="../">Back to Artifact Relay</a></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="copy-status" class="sr-only" role="status" aria-live="polite"></div>
+  <footer class="site-footer"><div class="container footer-inner"><span>Artifact Relay · private by default</span><span>Open source under MIT · v1.2.0</span></div></footer>
+</body>
+</html>

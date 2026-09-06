@@ -5,6 +5,7 @@ Artifact Relay publishes long AI-agent Markdown and standalone HTML output as pr
 ## Canonical links
 
 - Product: https://artifact-relay.lok-labs.com/
+- Self-host first artifact guide: https://artifact-relay.lok-labs.com/self-host/
 - Source and self-hosting: https://github.com/eloktev/artifact-relay
 - Hermes Agent plugin: https://github.com/eloktev/hermes-artifact-relay
 - Managed connection flow: https://relay.lok-labs.com/

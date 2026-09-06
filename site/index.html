@@ -29,8 +29,8 @@
       "description": "Private-by-default publishing for long AI-agent Markdown and standalone HTML artifacts."
     }
   </script>
-  <link rel="stylesheet" href="styles.css">
-  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=20260906-self-host">
+  <script src="script.js?v=20260906-self-host" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -41,7 +41,7 @@
         <a href="#security">Security</a>
         <a href="#compare">Compare</a>
         <a href="#managed">Managed</a>
-        <a href="#install">Install</a>
+        <a href="/self-host/">Self-host</a>
         <a class="nav-github" href="https://github.com/eloktev/artifact-relay">GitHub ↗</a>
       </div>
     </nav>
@@ -56,7 +56,7 @@
           <p class="hero-copy">Don’t deploy Artifact Relay. Ask your agent to connect it. Hermes turns long output into readable Markdown or standalone HTML in a private library—hosted for you or self-hosted in minutes.</p>
           <div class="actions">
             <a class="button button-primary" href="https://relay.lok-labs.com/">Connect with Hermes</a>
-            <a class="button button-secondary" href="https://github.com/eloktev/artifact-relay#localhost-quick-start">Self-host from GitHub <span aria-hidden="true">↗</span></a>
+            <a class="button button-secondary" href="/self-host/">Self-host: first artifact <span aria-hidden="true">→</span></a>
           </div>
           <p class="hero-note">Managed beta — free during beta · Planned price: $24/year · Limited availability</p>
         </div>
@@ -186,7 +186,7 @@ docker build -t artifact-relay:1.2.0 .
 ./scripts/bootstrap.sh
 docker compose up -d
 curl -fsS http://localhost:8000/api/health</pre></div>
-            <a class="details-link" href="https://github.com/eloktev/artifact-relay#localhost-quick-start">Read localhost setup →</a>
+            <a class="details-link" href="/self-host/">Follow the first-artifact guide →</a>
           </article>
           <article class="install-card">
             <h3>Linux VPS</h3>

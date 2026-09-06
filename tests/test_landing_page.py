@@ -4,6 +4,7 @@ import json
 import re
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import yaml
 from defusedxml import ElementTree as ET
@@ -11,6 +12,7 @@ from defusedxml import ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "site"
 INDEX = SITE / "index.html"
+SELF_HOST = SITE / "self-host" / "index.html"
 PAGES_WORKFLOW = ROOT / ".github" / "workflows" / "pages.yml"
 
 
@@ -34,6 +36,21 @@ def parsed_landing() -> tuple[str, LandingParser]:
     return source, parser
 
 
+def parsed_page(path: Path) -> tuple[str, LandingParser]:
+    source = path.read_text(encoding="utf-8")
+    parser = LandingParser()
+    parser.feed(source)
+    return source, parser
+
+
+def structured_data(source: str) -> dict[str, object]:
+    match = re.search(r'<script type="application/ld\+json">(.*?)</script>', source, re.DOTALL)
+    assert match is not None
+    data = json.loads(match.group(1))
+    assert isinstance(data, dict)
+    return data
+
+
 def test_landing_has_self_contained_distribution() -> None:
     assert INDEX.is_file()
     assert (SITE / "styles.css").is_file()
@@ -55,9 +72,12 @@ def test_landing_has_self_contained_distribution() -> None:
     ]
     assert resource_urls
     assert all(not re.match(r"^https?://", url) for url in resource_urls)
-    for url in resource_urls:
-        assert (SITE / url).resolve().is_relative_to(SITE.resolve())
-        assert (SITE / url).is_file(), url
+    for resource in resource_urls:
+        url = urlsplit(resource)
+        assert not url.scheme and not url.netloc
+        resolved = (SITE / url.path).resolve()
+        assert resolved.is_relative_to(SITE.resolve())
+        assert resolved.is_file(), resource
 
 
 def test_landing_copy_matches_verified_positioning() -> None:
@@ -106,6 +126,121 @@ def test_landing_copy_matches_verified_positioning() -> None:
         if tag == "a" and "button-primary" in attrs.get("class", "")
     ]
     assert primary_links[0] == "https://relay.lok-labs.com/"
+    assert "/self-host/" in hrefs
+
+
+def test_self_host_page_has_unique_metadata_and_howto_schema() -> None:
+    source, parser = parsed_page(SELF_HOST)
+    home_source, _ = parsed_landing()
+    titles = re.findall(r"<title>(.*?)</title>", source, re.DOTALL)
+    home_titles = re.findall(r"<title>(.*?)</title>", home_source, re.DOTALL)
+    h1 = re.findall(r"<h1>(.*?)</h1>", source, re.DOTALL)
+    home_h1 = re.findall(r"<h1>(.*?)</h1>", home_source, re.DOTALL)
+
+    assert SELF_HOST.is_file()
+    assert len(titles) == 1
+    assert titles != home_titles
+    assert len([tag for tag, _ in parser.tags if tag == "h1"]) == 1
+    assert h1 == ["Self-host Artifact Relay. Publish something useful."]
+    assert h1 != home_h1
+    assert '<link rel="canonical" href="https://artifact-relay.lok-labs.com/self-host/">' in source
+    assert (
+        '<meta property="og:url" content="https://artifact-relay.lok-labs.com/self-host/">'
+        in source
+    )
+    assert '<meta property="og:type" content="website">' in source
+    assert '<meta property="og:title"' in source
+    assert '<meta property="og:description"' in source
+    assert '<meta name="twitter:card" content="summary_large_image">' in source
+    assert '<meta name="twitter:title"' in source
+    assert '<meta name="twitter:description"' in source
+
+    data = structured_data(source)
+    assert data["@type"] == "HowTo"
+    assert data["url"] == "https://artifact-relay.lok-labs.com/self-host/"
+    assert data["totalTime"] == "PT10M"
+    steps = data["step"]
+    assert isinstance(steps, list)
+    assert [step["position"] for step in steps] == list(range(1, len(steps) + 1))
+    assert len(steps) >= 7
+
+
+def test_self_host_page_is_accessible_and_uses_internal_shared_assets() -> None:
+    source, parser = parsed_page(SELF_HOST)
+    tags = [tag for tag, _ in parser.tags]
+    assert '<html lang="en">' in source
+    assert '<meta name="viewport" content="width=device-width, initial-scale=1">' in source
+    assert tags.count("h1") == 1
+    assert {"header", "nav", "main", "footer"} <= set(tags)
+    assert 'href="#main"' in source
+    assert 'class="skip-link"' in source
+    assert 'aria-label="Primary navigation"' in source
+    assert 'id="copy-status"' in source
+    assert 'role="status"' in source
+    assert 'aria-live="polite"' in source
+
+    resources = [
+        attrs[key]
+        for tag, attrs in parser.tags
+        for key in ("src", "href")
+        if key in attrs
+        and (
+            tag in {"img", "script", "source"}
+            or (tag == "link" and attrs.get("rel") == "stylesheet")
+        )
+    ]
+    assert resources
+    for resource in resources:
+        url = urlsplit(resource)
+        assert not url.scheme and not url.netloc
+        resolved = (SELF_HOST.parent / url.path).resolve()
+        assert resolved.is_relative_to(SITE.resolve())
+        assert resolved.is_file(), resource
+
+    asset_versions = {
+        urlsplit(resource).query
+        for resource in resources
+        if urlsplit(resource).path.endswith((".css", ".js"))
+    }
+    assert len(asset_versions) == 1
+    assert "" not in asset_versions
+
+
+def test_self_host_page_documents_first_value_without_exposing_secrets() -> None:
+    source, parser = parsed_page(SELF_HOST)
+    text = " ".join(" ".join(parser.text_parts).split())
+    required = (
+        "Docker Engine",
+        "Compose v2",
+        "OpenSSL",
+        "POSIX shell",
+        "git clone https://github.com/eloktev/artifact-relay.git",
+        "git checkout v1.2.0",
+        "docker build -t artifact-relay:1.2.0 .",
+        "./scripts/bootstrap.sh",
+        "docker compose up -d",
+        "curl -fsS http://localhost:8000/api/health",
+        "Authorization: Bearer ${ARTIFACT_API_TOKEN}",
+        "POST http://localhost:8000/api/artifacts",
+        'json.load(sys.stdin)["url"]',
+        'open "$ARTIFACT_URL"',
+        "viewer password",
+        "API token",
+        "docker compose down",
+    )
+    for phrase in required:
+        assert phrase in text, phrase
+
+    hrefs = {attrs.get("href") for tag, attrs in parser.tags if tag == "a"}
+    assert "https://github.com/eloktev/artifact-relay#localhost-quick-start" in hrefs
+    assert "https://github.com/eloktev/artifact-relay/blob/main/docs/VPS.md" in hrefs
+    assert "https://github.com/eloktev/artifact-relay/blob/main/SECURITY.md" in hrefs
+    assert "https://github.com/eloktev/artifact-relay/blob/main/docs/BACKUP_RESTORE.md" in hrefs
+
+    assert "replace-me-with-at-least" not in source
+    assert "$argon2id$" not in source
+    assert not re.search(r"ARTIFACT_API_TOKEN\s*=\s*['\"]?[A-Za-z0-9+/]{16,}", source)
+    assert "cat .env" not in source
 
 
 def test_landing_has_accessible_semantic_shell() -> None:
@@ -150,13 +285,11 @@ def test_landing_exposes_search_and_agent_discovery_metadata() -> None:
     sitemap = ET.parse(SITE / "sitemap.xml")
     llms = (SITE / "llms.txt").read_text(encoding="utf-8")
 
-    match = re.search(r'<script type="application/ld\+json">(.*?)</script>', source, re.DOTALL)
-    assert match is not None
-    structured_data = json.loads(match.group(1))
-    assert structured_data["@type"] == "SoftwareApplication"
-    assert structured_data["url"] == "https://artifact-relay.lok-labs.com/"
-    assert structured_data["codeRepository"] == "https://github.com/eloktev/artifact-relay"
-    assert structured_data["license"] == "https://opensource.org/license/mit"
+    data = structured_data(source)
+    assert data["@type"] == "SoftwareApplication"
+    assert data["url"] == "https://artifact-relay.lok-labs.com/"
+    assert data["codeRepository"] == "https://github.com/eloktev/artifact-relay"
+    assert data["license"] == "https://opensource.org/license/mit"
 
     assert "User-agent: *" in robots
     assert "Allow: /" in robots
@@ -164,12 +297,16 @@ def test_landing_exposes_search_and_agent_discovery_metadata() -> None:
 
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
     locations = [node.text for node in sitemap.findall(".//s:loc", namespace)]
-    assert locations == ["https://artifact-relay.lok-labs.com/"]
+    assert locations == [
+        "https://artifact-relay.lok-labs.com/",
+        "https://artifact-relay.lok-labs.com/self-host/",
+    ]
 
     assert "# Artifact Relay" in llms
     assert "https://github.com/eloktev/artifact-relay" in llms
     assert "https://github.com/eloktev/hermes-artifact-relay" in llms
     assert "https://relay.lok-labs.com/" in llms
+    assert "https://artifact-relay.lok-labs.com/self-host/" in llms
 
     indexnow_files = [
         path for path in SITE.glob("*.txt") if re.fullmatch(r"[0-9a-f]{32}\.txt", path.name)
