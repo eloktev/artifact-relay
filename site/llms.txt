@@ -1,0 +1,24 @@
+# Artifact Relay
+
+Artifact Relay publishes long AI-agent Markdown and standalone HTML output as private, mobile-friendly web pages. It can run self-hosted with Docker or as an isolated managed instance. The library is private by default; optional artifact-scoped share links are revocable and can expire.
+
+## Canonical links
+
+- Product: https://artifact-relay.lok-labs.com/
+- Source and self-hosting: https://github.com/eloktev/artifact-relay
+- Hermes Agent plugin: https://github.com/eloktev/hermes-artifact-relay
+- Managed connection flow: https://relay.lok-labs.com/
+- Latest release: https://github.com/eloktev/artifact-relay/releases/latest
+- Security policy: https://github.com/eloktev/artifact-relay/blob/main/SECURITY.md
+
+## Core capabilities
+
+- Publish sanitized Markdown or sandboxed standalone HTML through a bearer-authenticated API.
+- Read artifacts in a password-protected mobile-friendly library.
+- Group and filter artifacts by human-readable topics.
+- Create optional scoped share links without exposing the private library.
+- Install a Hermes Agent plugin that provides artifact_publish and artifact_read tools.
+
+## License
+
+MIT

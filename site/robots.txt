@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://artifact-relay.lok-labs.com/sitemap.xml

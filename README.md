@@ -5,11 +5,11 @@ standalone HTML as mobile-friendly web pages. A bearer-authenticated API publish
 artifacts; viewers log in with one password. Optional, revocable share links can grant access
 to one artifact without exposing the private library.
 
-**Website:** <https://eloktev.github.io/artifact-relay/>
+**Website:** <https://artifact-relay.lok-labs.com/>
 
 [Install for Hermes Desktop](hermes://plugin/install?repo=eloktev/hermes-artifact-relay&enable=1) · [Try the managed beta](https://relay.lok-labs.com/) · [Star Artifact Relay on GitHub](https://github.com/eloktev/artifact-relay)
 
-[![Artifact Relay private library showing topic filters, favorites, and recent Markdown and HTML artifacts](site/assets/artifact-library.webp)](https://eloktev.github.io/artifact-relay/)
+[![Artifact Relay private library showing topic filters, favorites, and recent Markdown and HTML artifacts](site/assets/artifact-library.webp)](https://artifact-relay.lok-labs.com/)
 
 *Product UI illustration with synthetic report titles; it represents the v1.2.0 library, not customer evidence.*
 
