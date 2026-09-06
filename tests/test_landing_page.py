@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import json
 import re
 from html.parser import HTMLParser
 from pathlib import Path
 
 import yaml
+from defusedxml import ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "site"
@@ -116,13 +118,13 @@ def test_landing_has_accessible_semantic_shell() -> None:
     assert '<meta property="og:title"' in source
     assert '<meta property="og:description"' in source
     assert '<meta property="og:type" content="website">' in source
-    assert '<meta property="og:url" content="https://eloktev.github.io/artifact-relay/">' in source
+    assert '<meta property="og:url" content="https://artifact-relay.lok-labs.com/">' in source
     assert (
         '<meta property="og:image" '
-        'content="https://eloktev.github.io/artifact-relay/assets/artifact-library.webp">' in source
+        'content="https://artifact-relay.lok-labs.com/assets/artifact-library.webp">' in source
     )
     assert '<meta name="twitter:card" content="summary_large_image">' in source
-    assert '<link rel="canonical" href="https://eloktev.github.io/artifact-relay/">' in source
+    assert '<link rel="canonical" href="https://artifact-relay.lok-labs.com/">' in source
     assert tags.count("h1") == 1
     assert "header" in tags
     assert "nav" in tags
@@ -140,6 +142,41 @@ def test_landing_has_accessible_semantic_shell() -> None:
         if tag == "a" and attrs.get("target") == "_blank":
             rel = set(attrs.get("rel", "").split())
             assert {"noopener", "noreferrer"} <= rel, attrs
+
+
+def test_landing_exposes_search_and_agent_discovery_metadata() -> None:
+    source = INDEX.read_text(encoding="utf-8")
+    robots = (SITE / "robots.txt").read_text(encoding="utf-8")
+    sitemap = ET.parse(SITE / "sitemap.xml")
+    llms = (SITE / "llms.txt").read_text(encoding="utf-8")
+
+    match = re.search(r'<script type="application/ld\+json">(.*?)</script>', source, re.DOTALL)
+    assert match is not None
+    structured_data = json.loads(match.group(1))
+    assert structured_data["@type"] == "SoftwareApplication"
+    assert structured_data["url"] == "https://artifact-relay.lok-labs.com/"
+    assert structured_data["codeRepository"] == "https://github.com/eloktev/artifact-relay"
+    assert structured_data["license"] == "https://opensource.org/license/mit"
+
+    assert "User-agent: *" in robots
+    assert "Allow: /" in robots
+    assert "Sitemap: https://artifact-relay.lok-labs.com/sitemap.xml" in robots
+
+    namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+    locations = [node.text for node in sitemap.findall(".//s:loc", namespace)]
+    assert locations == ["https://artifact-relay.lok-labs.com/"]
+
+    assert "# Artifact Relay" in llms
+    assert "https://github.com/eloktev/artifact-relay" in llms
+    assert "https://github.com/eloktev/hermes-artifact-relay" in llms
+    assert "https://relay.lok-labs.com/" in llms
+
+    indexnow_files = [
+        path for path in SITE.glob("*.txt") if re.fullmatch(r"[0-9a-f]{32}\.txt", path.name)
+    ]
+    assert len(indexnow_files) == 1
+    indexnow_key = indexnow_files[0].stem
+    assert indexnow_files[0].read_text(encoding="utf-8").strip() == indexnow_key
 
 
 def test_landing_uses_responsive_and_motion_safe_css() -> None:
