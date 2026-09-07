@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "site"
 INDEX = SITE / "index.html"
 SELF_HOST = SITE / "self-host" / "index.html"
+SECURE_PUBLISHING = SITE / "guides" / "secure-agent-publishing" / "index.html"
 PAGES_WORKFLOW = ROOT / ".github" / "workflows" / "pages.yml"
 
 
@@ -127,6 +128,7 @@ def test_landing_copy_matches_verified_positioning() -> None:
     ]
     assert primary_links[0] == "https://relay.lok-labs.com/"
     assert "/self-host/" in hrefs
+    assert "/guides/secure-agent-publishing/" in hrefs
 
 
 def test_self_host_page_has_unique_metadata_and_howto_schema() -> None:
@@ -236,11 +238,127 @@ def test_self_host_page_documents_first_value_without_exposing_secrets() -> None
     assert "https://github.com/eloktev/artifact-relay/blob/main/docs/VPS.md" in hrefs
     assert "https://github.com/eloktev/artifact-relay/blob/main/SECURITY.md" in hrefs
     assert "https://github.com/eloktev/artifact-relay/blob/main/docs/BACKUP_RESTORE.md" in hrefs
+    assert "../guides/secure-agent-publishing/" in hrefs
 
     assert "replace-me-with-at-least" not in source
     assert "$argon2id$" not in source
     assert not re.search(r"ARTIFACT_API_TOKEN\s*=\s*['\"]?[A-Za-z0-9+/]{16,}", source)
     assert "cat .env" not in source
+
+
+def test_secure_publishing_article_has_canonical_metadata_and_schema() -> None:
+    source, parser = parsed_page(SECURE_PUBLISHING)
+    titles = re.findall(r"<title>(.*?)</title>", source, re.DOTALL)
+
+    assert SECURE_PUBLISHING.is_file()
+    assert titles == [
+        "Credential boundaries for secure AI-agent artifact publishing — Artifact Relay"
+    ]
+    assert len([tag for tag, _ in parser.tags if tag == "h1"]) == 1
+    assert (
+        '<link rel="canonical" href="https://artifact-relay.lok-labs.com/guides/secure-agent-publishing/">'
+        in source
+    )
+    assert (
+        '<meta property="og:url" content="https://artifact-relay.lok-labs.com/guides/secure-agent-publishing/">'
+        in source
+    )
+    assert '<meta property="og:type" content="article">' in source
+    assert '<meta name="description"' in source
+    assert '<meta property="og:title"' in source
+    assert '<meta property="og:description"' in source
+    assert '<meta name="twitter:card" content="summary_large_image">' in source
+
+    data = structured_data(source)
+    assert data["@type"] == "TechArticle"
+    assert data["headline"] == "Credential boundaries for secure AI-agent artifact publishing"
+    assert data["url"] == ("https://artifact-relay.lok-labs.com/guides/secure-agent-publishing/")
+    assert data["isPartOf"] == {"@id": "https://artifact-relay.lok-labs.com/"}
+    assert data["author"] == {"@type": "Organization", "name": "Artifact Relay"}
+
+
+def test_secure_publishing_article_covers_the_operational_security_model() -> None:
+    source, parser = parsed_page(SECURE_PUBLISHING)
+    text = " ".join(" ".join(parser.text_parts).split())
+    required = (
+        "Publisher credential",
+        "Viewer credential",
+        "Artifact-scoped share credential",
+        "Threat model and trust boundaries",
+        "Bearer token",
+        "provenance-metadata update",
+        "viewer password",
+        "one rendered artifact",
+        "Treat share URLs as credentials",
+        "127.0.0.1",
+        "SHARE_LINKS_ENABLED=false",
+        "docker compose up -d",
+        "./scripts/backup.sh",
+        "./scripts/restore.sh",
+        "artifact-relay-data.tar.gz",
+        "Secrets are not in the data archive",
+        "Operational checklist",
+        "Non-goals",
+        "single-user",
+    )
+    for phrase in required:
+        assert phrase.casefold() in text.casefold(), phrase
+
+    tables = [attrs for tag, attrs in parser.tags if tag == "table"]
+    assert tables
+    assert any(attrs.get("aria-label") == "Artifact Relay trust boundaries" for attrs in tables)
+    assert text.count("Publisher credential") >= 2
+    assert text.count("Viewer credential") >= 2
+    assert text.count("Artifact-scoped share credential") >= 2
+
+    hrefs = {attrs.get("href") for tag, attrs in parser.tags if tag == "a"}
+    assert "../../" in hrefs
+    assert "../../self-host/" in hrefs
+    assert "https://github.com/eloktev/artifact-relay/blob/main/README.md#api" in hrefs
+    assert "https://github.com/eloktev/artifact-relay/blob/main/SECURITY.md" in hrefs
+    assert "https://github.com/eloktev/artifact-relay/blob/main/docs/BACKUP_RESTORE.md" in hrefs
+    assert "https://github.com/eloktev/artifact-relay/blob/main/docs/VPS.md" in hrefs
+
+    assert "replace-me-with-at-least" not in source
+    assert "$argon2id$" not in source
+    assert not re.search(r"ARTIFACT_API_TOKEN\s*=\s*['\"]?[A-Za-z0-9+/]{16,}", source)
+    assert "cat .env" not in source
+
+
+def test_secure_publishing_article_uses_nested_shared_assets() -> None:
+    source, parser = parsed_page(SECURE_PUBLISHING)
+    assert '<html lang="en">' in source
+    assert '<meta name="viewport" content="width=device-width, initial-scale=1">' in source
+    tags = [tag for tag, _ in parser.tags]
+    assert {"header", "nav", "main", "article", "footer"} <= set(tags)
+    assert 'href="#main"' in source
+    assert 'class="skip-link"' in source
+    assert 'aria-label="Primary navigation"' in source
+
+    resources = [
+        attrs[key]
+        for tag, attrs in parser.tags
+        for key in ("src", "href")
+        if key in attrs
+        and (
+            tag in {"img", "script", "source"}
+            or (tag == "link" and attrs.get("rel") == "stylesheet")
+        )
+    ]
+    assert resources
+    for resource in resources:
+        url = urlsplit(resource)
+        assert not url.scheme and not url.netloc
+        resolved = (SECURE_PUBLISHING.parent / url.path).resolve()
+        assert resolved.is_relative_to(SITE.resolve())
+        assert resolved.is_file(), resource
+
+    asset_versions = {
+        urlsplit(resource).query
+        for resource in resources
+        if urlsplit(resource).path.endswith((".css", ".js"))
+    }
+    assert asset_versions == {"v=20260906-self-host"}
 
 
 def test_landing_has_accessible_semantic_shell() -> None:
@@ -300,6 +418,7 @@ def test_landing_exposes_search_and_agent_discovery_metadata() -> None:
     assert locations == [
         "https://artifact-relay.lok-labs.com/",
         "https://artifact-relay.lok-labs.com/self-host/",
+        "https://artifact-relay.lok-labs.com/guides/secure-agent-publishing/",
     ]
 
     assert "# Artifact Relay" in llms
@@ -307,6 +426,7 @@ def test_landing_exposes_search_and_agent_discovery_metadata() -> None:
     assert "https://github.com/eloktev/hermes-artifact-relay" in llms
     assert "https://relay.lok-labs.com/" in llms
     assert "https://artifact-relay.lok-labs.com/self-host/" in llms
+    assert "https://artifact-relay.lok-labs.com/guides/secure-agent-publishing/" in llms
 
     indexnow_files = [
         path for path in SITE.glob("*.txt") if re.fullmatch(r"[0-9a-f]{32}\.txt", path.name)
