@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Credential boundaries for secure AI-agent artifact publishing — Artifact Relay</title>
+  <meta name="description" content="A code-grounded guide to separating publisher, viewer, and artifact-scoped share credentials when AI agents publish through Artifact Relay.">
+  <meta property="og:title" content="Credential boundaries for secure AI-agent artifact publishing">
+  <meta property="og:description" content="Threat model, local Docker flow, backup and restore model, and an operational checklist for Artifact Relay.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://artifact-relay.lok-labs.com/guides/secure-agent-publishing/">
+  <meta property="og:image" content="https://artifact-relay.lok-labs.com/assets/artifact-library.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Credential boundaries for secure AI-agent artifact publishing">
+  <meta name="twitter:description" content="How Artifact Relay separates agent publishing, private viewing, and one-artifact sharing.">
+  <meta name="twitter:image" content="https://artifact-relay.lok-labs.com/assets/artifact-library.webp">
+  <meta name="theme-color" content="#090b0a">
+  <link rel="canonical" href="https://artifact-relay.lok-labs.com/guides/secure-agent-publishing/">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Credential boundaries for secure AI-agent artifact publishing",
+      "description": "A code-grounded guide to the publisher, viewer, and artifact-scoped share boundaries in Artifact Relay.",
+      "url": "https://artifact-relay.lok-labs.com/guides/secure-agent-publishing/",
+      "mainEntityOfPage": "https://artifact-relay.lok-labs.com/guides/secure-agent-publishing/",
+      "isPartOf": {"@id": "https://artifact-relay.lok-labs.com/"},
+      "author": {"@type": "Organization", "name": "Artifact Relay"},
+      "publisher": {"@type": "Organization", "name": "Artifact Relay"},
+      "about": ["AI agents", "credential boundaries", "artifact publishing", "self-hosting"]
+    }
+  </script>
+  <link rel="stylesheet" href="../../styles.css?v=20260906-self-host">
+  <script src="../../script.js?v=20260906-self-host" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary navigation">
+      <a class="brand" href="../../" aria-label="Artifact Relay home"><span class="brand-mark" aria-hidden="true"></span>Artifact Relay</a>
+      <div class="nav-links guide-nav">
+        <a href="#boundaries">Boundaries</a>
+        <a href="#local-flow">Local flow</a>
+        <a href="#recovery">Recovery</a>
+        <a class="nav-github" href="https://github.com/eloktev/artifact-relay">GitHub ↗</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article>
+      <header class="container guide-hero">
+        <p class="eyebrow">Technical guide · security model · v1.2.0</p>
+        <h1>Credential boundaries for secure AI-agent artifact publishing</h1>
+        <p class="hero-copy">An AI agent needs permission to deliver work, not a password that unlocks everything a person can read. Artifact Relay separates publishing, private viewing, and selective sharing so each credential crosses a different trust boundary.</p>
+        <div class="actions">
+          <a class="button button-primary" href="#boundaries">Map the boundaries</a>
+          <a class="button button-secondary" href="../../self-host/">Run the localhost guide</a>
+        </div>
+        <p class="hero-note">Grounded in the Artifact Relay v1.2.0 repository · no claim of protection beyond the documented controls</p>
+      </header>
+
+      <section aria-labelledby="why-title">
+        <div class="section container guide-section">
+          <div class="guide-heading">
+            <p class="kicker">01 / Design problem</p>
+            <div>
+              <h2 id="why-title">Do not make the agent a viewer.</h2>
+              <p class="lede">The publishing process and the human reader have different jobs. Reusing one credential would make a leak or accidental disclosure affect both jobs at once. Artifact Relay instead defines three credential classes, while keeping application data and operator secrets as a fourth operational boundary.</p>
+            </div>
+          </div>
+          <div class="proof-grid">
+            <article class="proof"><span class="proof-index">01</span><h3>Publisher credential</h3><p>A bearer token authorizes API publish, source read, provenance-metadata update, and delete calls. Give it only to the trusted publishing process that needs those API operations.</p></article>
+            <article class="proof"><span class="proof-index">02</span><h3>Viewer credential</h3><p>A viewer password is verified at login and creates a signed browser session. The application stores an Argon2id verifier, not the plaintext password.</p></article>
+            <article class="proof"><span class="proof-index">03</span><h3>Artifact-scoped share credential</h3><p>An optional share URL grants access to one rendered artifact and its assets. It can expire or be revoked, and does not unlock the private library.</p></article>
+          </div>
+          <p class="callout">Separation limits credential reuse; it does not make the publisher token narrow. The documented bearer token can publish, update provenance metadata, read original source, and permanently delete artifacts through the API.</p>
+        </div>
+      </section>
+
+      <section id="boundaries" aria-labelledby="boundaries-title">
+        <div class="section container guide-section">
+          <div class="guide-heading">
+            <p class="kicker">02 / Threat model</p>
+            <div>
+              <h2 id="boundaries-title">Threat model and trust boundaries</h2>
+              <p class="lede">This model asks what an attacker gains after obtaining one credential or one storage surface. It assumes the host operator, deployment configuration, and Artifact Relay process are trusted. Internet-facing traffic must use the documented HTTPS deployment shape.</p>
+            </div>
+          </div>
+
+          <div class="compare-wrap" role="region" aria-label="Artifact Relay trust-boundary table" tabindex="0">
+            <table class="compare" aria-label="Artifact Relay trust boundaries">
+              <thead><tr><th>Boundary</th><th>Intended holder</th><th>What it authorizes</th><th>If disclosed</th><th>Repository-backed control</th></tr></thead>
+              <tbody>
+                <tr><td>Publisher credential</td><td>Trusted agent runtime or publishing integration</td><td>Bearer-authenticated publish, provenance-metadata update, original-source read, and permanent delete API calls</td><td>An attacker can act through those API routes until the token is replaced</td><td>Generated separately by bootstrap; expected in secret environment, not chat or ordinary config</td></tr>
+                <tr><td>Viewer credential</td><td>The human owner</td><td>Login to the private library and rendered artifacts; creation and revocation of shares when sharing is enabled</td><td>An attacker can browse the private viewer as that user while access remains valid</td><td>Plaintext is entered without echo; bootstrap stores only an Argon2id password verifier; login checks are throttled and concurrency-bounded</td></tr>
+                <tr><td>Artifact-scoped share credential</td><td>A selected recipient</td><td>One rendered artifact and its assets</td><td>Anyone holding the URL can use that artifact-level access until expiry or revocation</td><td>Sharing is off in local Compose; when enabled it requires an HTTPS base URL and links can expire or be revoked</td></tr>
+                <tr><td>Data volume and <code>.env</code></td><td>Host operator</td><td>Stored source, assets, SQLite metadata, API token, password verifier, and session signing key across two separate surfaces</td><td>Disclosure can expose private content or credentials; loss can prevent recovery or force access reconfiguration</td><td>Named volume for data; mode-0600 environment file; data backup excludes <code>.env</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="boundary">
+            <div class="boundary-copy">
+              <h3>Threats this boundary design addresses</h3>
+              <ul>
+                <li>An agent does not need the viewer password to publish.</li>
+                <li>A normal viewer session does not reveal the publisher bearer token.</li>
+                <li>A share recipient does not receive library-wide viewer access.</li>
+                <li>Disabling sharing makes share-management and <code>/s/*</code> routes return <code>404</code>, including for links created earlier.</li>
+              </ul>
+            </div>
+            <div class="boundary-copy">
+              <h3>Risks the operator still owns</h3>
+              <ul>
+                <li>Protect the publishing environment: the API token is a bearer credential.</li>
+                <li>Protect the host, <code>.env</code>, persistent volume, and backups from unauthorized access.</li>
+                <li>Treat share URLs as credentials; recipients can pass them on.</li>
+                <li>Use TLS, secure cookies, and restricted proxy trust when the service leaves loopback.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="callout">Artifact IDs are opaque paths, but opacity is not viewer authentication. Private artifact pages still require the viewer session, and share URLs must be handled as credentials.</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="credential-title">
+        <div class="section container guide-section">
+          <div class="guide-heading">
+            <p class="kicker">03 / Credential lifecycle</p>
+            <div><h2 id="credential-title">Place each credential where its job runs.</h2><p class="lede">The safest useful placement follows the request path: publisher credential in the agent runtime, viewer credential in the human login flow, and artifact-scoped share credential only with the intended recipient.</p></div>
+          </div>
+          <ol class="steps">
+            <li class="step-card"><div class="step-copy"><span class="step-number">1</span><div><h3>Generate, do not invent</h3><p>Build the selected release and run <code>./scripts/bootstrap.sh</code>. It generates the API token and session signing key, asks twice for a viewer password without echo, hashes that password in the application image, and creates <code>.env</code> with mode <code>0600</code>.</p></div></div><div class="credential-note"><h3>Refuses unsafe reuse</h3><p>The script will not overwrite an existing environment file. Application startup also rejects documented placeholder secrets and incompatible sharing or origin settings.</p></div></li>
+            <li class="step-card"><div class="step-copy"><span class="step-number">2</span><div><h3>Inject the publisher token</h3><p>Pass the generated bearer token through the secret environment used to launch the trusted agent or integration. Do not copy it into chat, an artifact, source control, or ordinary agent configuration.</p></div></div><div class="credential-note"><h3>Scope accurately</h3><p>The publisher credential is distinct from viewer access, but it is not write-only: the documented API also permits provenance-metadata updates, original-source reads, and deletes.</p></div></li>
+            <li class="step-card"><div class="step-copy"><span class="step-number">3</span><div><h3>Keep viewing human-facing</h3><p>Enter the viewer password only into Artifact Relay’s login page. The resulting signed session grants access to the library and private artifact pages.</p></div></div><div class="credential-note"><h3>Share deliberately</h3><p>When shares are enabled, create one from an authenticated viewer session, choose an expiry where appropriate, and revoke it when its purpose ends.</p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="local-flow" aria-labelledby="local-title">
+        <div class="section container guide-section">
+          <div class="guide-heading">
+            <p class="kicker">04 / Local Docker flow</p>
+            <div><h2 id="local-title">Start with the smallest network boundary.</h2><p class="lede">The base Compose file publishes container port 8000 only on <code>127.0.0.1</code>, uses local HTTP, and sets <code>SHARE_LINKS_ENABLED=false</code>. That is a workstation flow, not an internet-facing deployment.</p></div>
+          </div>
+          <div class="code code-large"><pre tabindex="0">git clone https://github.com/eloktev/artifact-relay.git
+cd artifact-relay
+git checkout v1.2.0
+docker build -t artifact-relay:1.2.0 .
+./scripts/bootstrap.sh
+docker compose up -d
+docker compose ps
+curl -fsS http://localhost:8000/api/health</pre></div>
+          <div class="install-grid">
+            <article class="install-card"><h3>Agent path</h3><p>Load the token into the publishing process without displaying it. Send it only in the bearer authorization header to the Artifact Relay API. The health endpoint needs no credential and returns no secret data.</p></article>
+            <article class="install-card"><h3>Human path</h3><p>Open the local viewer and authenticate with the viewer password. The publisher does not need that password, and the human does not need to expose the bearer token to browse rendered results.</p></article>
+          </div>
+          <div class="credential-note"><h3>Moving beyond localhost</h3><p>Do not expose container port 8000 directly. The repository’s Linux VPS guide terminates TLS with Caddy, keeps the app on loopback, requires <code>COOKIE_SECURE=true</code>, restricts trusted proxy peers, and enables sharing only on an HTTPS origin.</p></div>
+          <p><a class="details-link" href="../../self-host/">Follow the complete first-artifact walkthrough →</a></p>
+        </div>
+      </section>
+
+      <section id="recovery" aria-labelledby="recovery-title">
+        <div class="section container guide-section">
+          <div class="guide-heading">
+            <p class="kicker">05 / Backup boundary</p>
+            <div><h2 id="recovery-title">Back up data and credentials separately.</h2><p class="lede">All persistent application data is in the <code>artifact-data</code> Compose volume. Secrets live in <code>.env</code> and are intentionally excluded from the data archive.</p></div>
+          </div>
+          <div class="install-grid">
+            <article class="install-card">
+              <h3>Data backup</h3>
+              <p><code>./scripts/backup.sh</code> briefly stops the service so SQLite metadata and artifact files share one point in time, creates a mode-0600 <code>artifact-relay-data.tar.gz</code>, and restarts the service if it was running. Store the archive encrypted.</p>
+              <div class="code"><pre tabindex="0">./scripts/backup.sh</pre></div>
+            </article>
+            <article class="install-card">
+              <h3>Secret backup</h3>
+              <p>Secrets are not in the data archive. Store <code>.env</code> separately in a password manager or secret backup. Without the same signing key, existing sessions are logged out; without the password verifier or API token, access must be reconfigured.</p>
+            </article>
+          </div>
+          <div class="credential-note">
+            <h3>Restore is a controlled replacement, not an extraction shortcut</h3>
+            <p>Back up current data first and restore only into a compatible application version. <code>./scripts/restore.sh</code> validates archive paths, member types, SQLite integrity, schema compatibility, and recovery state before downtime. It stages the restored tree, retains the previous tree until health succeeds, and keeps recoverable state for operator intervention if safe rollback cannot be confirmed.</p>
+          </div>
+          <div class="code code-large"><pre tabindex="0">./scripts/restore.sh /secure/backups/.../artifact-relay-data.tar.gz
+curl -fsS http://localhost:8000/api/health</pre></div>
+          <p class="callout">A health response is necessary but not the full acceptance check. The repository runbook also requires logging in and opening a known artifact, while retaining the pre-restore backup until verification completes.</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="checklist-title">
+        <div class="section container boundary">
+          <div class="boundary-copy">
+            <p class="kicker">06 / Runbook</p>
+            <h2 id="checklist-title">Operational checklist</h2>
+            <p class="lede">Use this as a review list before connecting an agent or exposing the service beyond one machine.</p>
+          </div>
+          <ul class="contract">
+            <li><span class="check">✓</span><span>Use a pinned release tag or immutable image digest; avoid a moving <code>latest</code> deployment.</span></li>
+            <li><span class="check">✓</span><span>Generate credentials with bootstrap, retain mode <code>0600</code> on <code>.env</code>, and never print the file to collect a token.</span></li>
+            <li><span class="check">✓</span><span>Put the publisher bearer token only in the trusted agent’s secret environment; keep the viewer password human-facing.</span></li>
+            <li><span class="check">✓</span><span>Keep local Compose on <code>127.0.0.1</code>. For remote access, follow the documented Caddy HTTPS and proxy-trust configuration.</span></li>
+            <li><span class="check">✓</span><span>Leave sharing disabled unless needed. If enabled, use HTTPS, choose expiries, revoke completed shares, and treat URLs as credentials.</span></li>
+            <li><span class="check">✓</span><span>Back up the data volume and <code>.env</code> separately; encrypt backup storage and test a compatible restore.</span></li>
+            <li><span class="check">✓</span><span>After restore or upgrade, check health, log in, and open a known artifact before discarding the prior backup.</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section aria-labelledby="non-goals-title">
+        <div class="section container guide-section">
+          <div class="guide-heading">
+            <p class="kicker">07 / Limits</p>
+            <div><h2 id="non-goals-title">Non-goals</h2><p class="lede">Credential separation is useful only when its limits are explicit.</p></div>
+          </div>
+          <div class="proof-grid">
+            <article class="proof"><span class="proof-index">01</span><h3>Not multi-user authorization</h3><p>Artifact Relay is documented as a small, single-user gateway. The viewer session is library-wide; this is not a team role or tenant permission system.</p></article>
+            <article class="proof"><span class="proof-index">02</span><h3>Not write-only agent access</h3><p>The publisher bearer token also authorizes provenance-metadata updates, source reads, and deletes. If an agent needs a write-only capability, that is outside the current API contract.</p></article>
+            <article class="proof"><span class="proof-index">03</span><h3>Not protection from the host operator</h3><p>The host controls the environment file and persistent volume. This design does not encrypt content against an operator who controls the runtime and storage.</p></article>
+          </div>
+          <div class="proof-grid">
+            <article class="proof"><span class="proof-index">04</span><h3>Not a public publishing platform</h3><p>The default library is private. Selective shares are artifact-scoped credentials, not a promise of anonymous public hosting or discoverability.</p></article>
+            <article class="proof"><span class="proof-index">05</span><h3>Not safe without TLS on the internet</h3><p>Plain HTTP is accepted only for loopback. Sharing requires an HTTPS base URL, and the VPS path requires secure cookies and restricted proxy trust.</p></article>
+            <article class="proof"><span class="proof-index">06</span><h3>Not a backup policy by itself</h3><p>Scripts implement consistency and guarded restore mechanics. The operator still chooses encrypted storage, retention, access control, and restore testing.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="sources-title">
+        <div class="section container guide-section">
+          <div class="guide-heading">
+            <p class="kicker">08 / Verify in source</p>
+            <div><h2 id="sources-title">Read the implementation contract.</h2><p class="lede">This article summarizes repository behavior rather than inventing a parallel security promise. Use the versioned source and runbooks as the operative references.</p></div>
+          </div>
+          <nav class="doc-links" aria-label="Source documentation">
+            <a href="https://github.com/eloktev/artifact-relay/blob/main/README.md#api"><strong>API and configuration</strong><span>Credential roles, routes, limits, and share behavior →</span></a>
+            <a href="https://github.com/eloktev/artifact-relay/blob/main/SECURITY.md"><strong>Security policy</strong><span>Deployment controls and private reporting →</span></a>
+            <a href="https://github.com/eloktev/artifact-relay/blob/main/docs/BACKUP_RESTORE.md"><strong>Backup and restore</strong><span>Consistent archive and guarded restore procedure →</span></a>
+            <a href="https://github.com/eloktev/artifact-relay/blob/main/docs/VPS.md"><strong>Linux VPS</strong><span>TLS, secure cookies, loopback, and proxy trust →</span></a>
+          </nav>
+        </div>
+      </section>
+
+      <section aria-labelledby="next-title">
+        <div class="section container final compact-final">
+          <p class="eyebrow">Apply the model</p>
+          <h2 id="next-title">Publish locally before widening the boundary.</h2>
+          <p>Run one private artifact on loopback, place each credential deliberately, then adopt the documented HTTPS and recovery controls if you move to a server.</p>
+          <div class="actions"><a class="button button-primary" href="../../self-host/">Self-host the first artifact</a><a class="button button-secondary" href="../../">Back to Artifact Relay</a></div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <footer class="site-footer"><div class="container footer-inner"><span>Artifact Relay · private by default</span><span>Open source under MIT · v1.2.0</span></div></footer>
+</body>
+</html>
