@@ -15,6 +15,8 @@ INDEX = SITE / "index.html"
 SELF_HOST = SITE / "self-host" / "index.html"
 SECURE_PUBLISHING = SITE / "guides" / "secure-agent-publishing" / "index.html"
 PAGES_WORKFLOW = ROOT / ".github" / "workflows" / "pages.yml"
+ANALYTICS = SITE / "analytics.js"
+ANALYTICS_ASSET_VERSION = "v=20260907-analytics"
 
 
 class LandingParser(HTMLParser):
@@ -56,6 +58,7 @@ def test_landing_has_self_contained_distribution() -> None:
     assert INDEX.is_file()
     assert (SITE / "styles.css").is_file()
     assert (SITE / "script.js").is_file()
+    assert ANALYTICS.is_file()
     assert (SITE / "assets" / "relay-flow.svg").is_file()
     assert (SITE / "assets" / "artifact-library.webp").is_file()
     assert (SITE / "assets" / "publish-private-view.webp").is_file()
@@ -359,7 +362,72 @@ def test_secure_publishing_article_uses_nested_shared_assets() -> None:
         for resource in resources
         if urlsplit(resource).path.endswith((".css", ".js"))
     }
-    assert asset_versions == {"v=20260906-self-host"}
+    assert asset_versions == {ANALYTICS_ASSET_VERSION}
+
+
+def test_landing_analytics_is_explicitly_opt_in_and_tracks_bounded_events() -> None:
+    pages = (INDEX, SELF_HOST, SECURE_PUBLISHING)
+    sources = [path.read_text(encoding="utf-8") for path in pages]
+    script = ANALYTICS.read_text(encoding="utf-8")
+
+    for source in sources:
+        assert "analytics.js?v=20260907-analytics" in source
+        assert "googletagmanager.com" not in source
+        assert "G-LNSQNESC6L" not in source
+
+    assert 'const MEASUREMENT_ID = "G-LNSQNESC6L"' in script
+    assert 'window.location.hostname !== "artifact-relay.lok-labs.com"' in script
+    assert "googletagmanager.com/gtag/js?id=" in script
+    assert 'CONSENT_KEY = "artifact-relay.analytics-consent.v1"' in script
+    assert 'analytics_storage: "granted"' in script
+    assert 'analytics_storage: "denied"' in script
+    assert "allow_google_signals: false" in script
+    assert "allow_ad_personalization_signals: false" in script
+    assert "localStorage" in script
+    assert 'textContent = "Allow analytics"' in script
+    assert 'textContent = "Decline"' in script
+    assert 'aria-modal", "true"' not in script
+    assert "send_page_view: false" in script
+    assert "page_location: safePageLocation" in script
+    assert 'page_referrer: ""' in script
+    assert "window.location.reload()" in script
+    assert '"artifact-relay:copy-success"' in script
+
+    expected_events = {
+        "cta_managed_connect",
+        "cta_self_host",
+        "cta_secure_guide",
+        "cta_github_repository",
+        "cta_plugin_install",
+        "cta_plugin_repository",
+        "cta_release_notes",
+        "cta_vps_guide",
+        "copy_install_commands",
+        "copy_publish_commands",
+        "copy_plugin_commands",
+    }
+    for event in expected_events:
+        assert f'"{event}"' in script
+
+    assert "location.href" not in script
+    assert "location.search" not in script
+    assert "document.referrer" not in script
+    assert "innerText" not in script
+
+
+def test_analytics_consent_ui_is_responsive_and_accessible() -> None:
+    css = (SITE / "styles.css").read_text(encoding="utf-8")
+    script = ANALYTICS.read_text(encoding="utf-8")
+
+    assert ".analytics-consent" in css
+    assert ".analytics-consent-actions" in css
+    assert ".analytics-settings" in css
+    assert "max-height: calc(100svh - 2rem)" in css
+    assert "overflow-y: auto" in css
+    assert "@media (max-width: 560px)" in css
+    assert 'setAttribute("role", "dialog")' in script
+    assert 'setAttribute("aria-labelledby", "analytics-consent-title")' in script
+    assert 'setAttribute("aria-describedby", "analytics-consent-description")' in script
 
 
 def test_landing_has_accessible_semantic_shell() -> None:

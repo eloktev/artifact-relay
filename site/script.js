@@ -11,6 +11,9 @@
       if (!target) return;
       try {
         await navigator.clipboard.writeText(target.textContent.trim());
+        document.dispatchEvent(new CustomEvent("artifact-relay:copy-success", {
+          detail: { copyTarget: button.dataset.copy },
+        }));
         const original = button.textContent;
         button.textContent = "Copied";
         if (status) status.textContent = button.dataset.copySuccess || "Commands copied";
