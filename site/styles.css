@@ -126,6 +126,41 @@ h2 { max-width: 820px; margin: 0; font-size: clamp(2.2rem, 5vw, 4.5rem); line-he
 .site-footer { border-top: 1px solid var(--line); padding: 2rem 0; }
 .footer-inner { display: flex; justify-content: space-between; gap: 1rem; color: var(--faint); font-size: .78rem; }
 
+/* Analytics is opt-in. The Google tag is not loaded before consent. */
+.analytics-consent {
+  position: fixed;
+  z-index: 200;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(430px, calc(100% - 2rem));
+  max-height: calc(100svh - 2rem);
+  overflow-y: auto;
+  padding: 1.25rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: 0 18px 60px rgb(0 0 0 / 45%);
+}
+.analytics-consent[hidden] { display: none; }
+.analytics-consent h2 { margin: 0; font-size: 1.2rem; letter-spacing: -.02em; }
+.analytics-consent p { margin: .7rem 0 0; color: var(--muted); font-size: .86rem; }
+.analytics-consent-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
+.analytics-consent-actions .button { min-height: 42px; cursor: pointer; }
+.analytics-settings {
+  position: fixed;
+  z-index: 190;
+  left: .75rem;
+  bottom: .75rem;
+  padding: .4rem .6rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--faint);
+  cursor: pointer;
+  font: .68rem var(--mono);
+}
+.analytics-settings[hidden] { display: none; }
+
 /* Self-host first-value guide. */
 .guide-hero { padding-block: clamp(5rem, 10vw, 8rem); }
 .guide-hero h1 { max-width: 940px; }
@@ -188,6 +223,8 @@ h2 { max-width: 820px; margin: 0; font-size: clamp(2.2rem, 5vw, 4.5rem); line-he
   .cleanup-grid, .doc-links { grid-template-columns: 1fr; }
   .code-large pre { padding-right: 4rem; }
   .copy { min-width: 44px; min-height: 44px; }
+  .analytics-consent { right: .7rem; bottom: .7rem; width: calc(100% - 1.4rem); max-height: calc(100svh - 1.4rem); }
+  .analytics-consent-actions .button { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
