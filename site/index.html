@@ -90,10 +90,23 @@
       </div>
     </section>
 
+    <section aria-labelledby="demo-title">
+      <div class="section container">
+        <div class="section-head">
+          <p class="kicker">02 / First value</p>
+          <div><h2 id="demo-title">Publish → private view, without sharing a credential.</h2><p class="lede">The API accepts Markdown from the publisher, then a separate viewer password unlocks the rendered result. This is the smallest complete Artifact Relay workflow.</p></div>
+        </div>
+        <figure class="product-shot">
+          <img src="assets/publish-private-view.webp" alt="A real local Artifact Relay run: an API publish succeeds, then the private viewer renders the Markdown artifact" width="1440" height="760">
+          <figcaption>Demo evidence: captured from a local v1.2.0 run with synthetic content. No production data or credentials are shown. <a href="/self-host/">Reproduce the flow with the first-artifact guide →</a></figcaption>
+        </figure>
+      </div>
+    </section>
+
     <section aria-labelledby="surface-title">
       <div class="section container">
         <div class="section-head">
-          <p class="kicker">02 / Product surface</p>
+          <p class="kicker">03 / Product surface</p>
           <div><h2 id="surface-title">A library for results worth keeping.</h2><p class="lede">Long reports stop disappearing into chat history. Artifact Relay gives them a stable, focused reading surface for desktop and mobile.</p></div>
         </div>
         <div class="surface-grid">
@@ -113,7 +126,7 @@
     <section id="security" aria-labelledby="security-title">
       <div class="section container boundary">
         <div class="boundary-copy">
-          <p class="kicker">03 / Security contract</p>
+          <p class="kicker">04 / Security contract</p>
           <h2 id="security-title">Concrete boundaries, not a security slogan.</h2>
           <p class="lede">Artifact Relay is a small, single-user gateway. Its controls are explicit and inspectable in the source.</p>
           <div class="boundary-card">
@@ -136,7 +149,7 @@
     <section id="compare" aria-labelledby="compare-title">
       <div class="section container">
         <div class="section-head">
-          <p class="kicker">04 / Why not</p>
+          <p class="kicker">05 / Why not</p>
           <div><h2 id="compare-title">Choose the boundary that matches the job.</h2><p class="lede">Artifact Relay is not generic static publishing. It is for private, recurring delivery from trusted AI agents.</p></div>
         </div>
         <div class="compare-wrap" role="region" aria-label="Artifact delivery alternatives" tabindex="0">
@@ -157,7 +170,7 @@
     <section id="managed" aria-labelledby="managed-title">
       <div class="section container boundary">
         <div class="boundary-copy">
-          <p class="kicker">05 / Managed beta</p>
+          <p class="kicker">06 / Managed beta</p>
           <h2 id="managed-title">Your private Artifact Relay, hosted and maintained for you.</h2>
           <p class="lede">Hermes installs the plugin, starts device authorization, stores the publish credential locally, checks the endpoint, and publishes a verification artifact. You do not handle Docker, tokens, or server configuration.</p>
           <div class="actions"><a class="button button-primary" href="https://relay.lok-labs.com/">Connect with Hermes</a></div>
@@ -174,7 +187,7 @@
     <section id="install" aria-labelledby="install-title">
       <div class="section container">
         <div class="section-head">
-          <p class="kicker">06 / Self-host</p>
+          <p class="kicker">07 / Self-host</p>
           <div><h2 id="install-title">Prefer to run it yourself?</h2><p class="lede">Docker Compose remains the supported self-hosted path. Start on localhost, or move to a Linux VPS with HTTPS when you need remote access and sharing.</p></div>
         </div>
         <div class="install-grid">
@@ -208,7 +221,7 @@ docker compose \
     <section aria-labelledby="plugin-title">
       <div class="section container plugin">
         <div class="plugin-copy">
-          <p class="kicker">07 / Hermes Agent</p>
+          <p class="kicker">08 / Hermes Agent</p>
           <h2 id="plugin-title">Give Hermes a private delivery path.</h2>
           <p>The portable plugin registers two tools and includes a skill that turns long results into concise private links. Hosted setup uses device authorization and keeps the publish credential out of the browser, chat, model output, and ordinary config.</p>
           <div class="tool-pills"><span class="tool-pill">artifact_publish</span><span class="tool-pill">artifact_read</span></div>

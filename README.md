@@ -9,9 +9,11 @@ to one artifact without exposing the private library.
 
 [Install for Hermes Desktop](hermes://plugin/install?repo=eloktev/hermes-artifact-relay&enable=1) · [Try the managed beta](https://relay.lok-labs.com/) · [Star Artifact Relay on GitHub](https://github.com/eloktev/artifact-relay)
 
-[![Artifact Relay private library showing topic filters, favorites, and recent Markdown and HTML artifacts](site/assets/artifact-library.webp)](https://artifact-relay.lok-labs.com/)
+[![A real local Artifact Relay run: an API publish succeeds, then the private viewer renders the Markdown artifact](site/assets/publish-private-view.webp)](https://artifact-relay.lok-labs.com/self-host/)
 
-*Product UI illustration with synthetic report titles; it represents the v1.2.0 library, not customer evidence.*
+**Publish → private view — captured from a local v1.2.0 run** with synthetic content; no production
+data or credentials appear in the image. Follow the [first-artifact guide](https://artifact-relay.lok-labs.com/self-host/)
+to reproduce the same flow.
 
 ## Managed beta
 
