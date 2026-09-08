@@ -171,6 +171,14 @@ The bearer token and viewer password are separate trust boundaries. Share links 
 they grant access only to one rendered artifact and its assets, can expire, and can be revoked.
 Treat share URLs as credentials.
 
+## Generic agent and shell integration
+
+Use [`scripts/publish-file.sh`](scripts/publish-file.sh) from Claude Code, Codex, OpenCode,
+or any shell-capable agent. It publishes an existing Markdown or standalone HTML file while
+reading `ARTIFACT_RELAY_API_TOKEN` only from the environment; the token is not placed in the
+`curl` command arguments. See [Publish from any shell-capable agent](docs/GENERIC_AGENT_PUBLISHING.md)
+for secure setup, options, and the exact request scope.
+
 ## Hermes Agent integration
 
 Install the optional portable plugin from its separate repository:
