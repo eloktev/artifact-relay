@@ -58,6 +58,7 @@ def test_landing_has_self_contained_distribution() -> None:
     assert (SITE / "script.js").is_file()
     assert (SITE / "assets" / "relay-flow.svg").is_file()
     assert (SITE / "assets" / "artifact-library.webp").is_file()
+    assert (SITE / "assets" / "publish-private-view.webp").is_file()
 
     _, parser = parsed_landing()
     resource_urls = [
@@ -483,3 +484,28 @@ def test_pages_workflow_deploys_only_static_site() -> None:
         step for step in steps if step.get("uses", "").startswith("actions/upload-pages-artifact@")
     )
     assert upload["with"]["path"] == "site"
+
+
+def test_readme_and_landing_show_the_real_first_value_flow() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    source, parser = parsed_landing()
+    text = " ".join(" ".join(parser.text_parts).split())
+    demo_path = "site/assets/publish-private-view.webp"
+
+    assert demo_path in readme
+    assert "Publish → private view" in readme
+    assert "captured from a local v1.2.0 run" in readme
+    assert "Publish → private view" in text
+    assert "captured from a local v1.2.0 run" in text
+
+    images = [attrs for tag, attrs in parser.tags if tag == "img"]
+    assert any(
+        attrs.get("src") == "assets/publish-private-view.webp"
+        and attrs.get("alt")
+        == (
+            "A real local Artifact Relay run: an API publish succeeds, then the "
+            "private viewer renders the Markdown artifact"
+        )
+        for attrs in images
+    )
+    assert source.count("assets/publish-private-view.webp") == 1
