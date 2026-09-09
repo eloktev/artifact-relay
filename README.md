@@ -51,11 +51,13 @@ docker build -t artifact-relay:1.2.0 .
 docker compose up -d
 docker compose ps
 curl -fsS http://localhost:8000/api/health
+./scripts/publish-example.sh
 ```
 
 Open <http://localhost:8000>. The bootstrap script prompts for the viewer password without
 echoing it, hashes it inside the application image, generates independent random API and session
-secrets, and creates `.env` with mode `0600`. It refuses to overwrite an existing file.
+secrets, and creates `.env` with mode `0600`. It refuses to overwrite an existing file. The final
+command publishes the bundled agent report and prints only its private artifact URL.
 
 The default Compose deployment is intentionally local-only:
 
@@ -143,18 +145,9 @@ See [.env.example](.env.example) for the complete non-secret configuration templ
 
 Interactive documentation is at `/api/docs`; OpenAPI JSON is at `/api/openapi.json`.
 
-Publish Markdown:
-
-```sh
-curl -fsS -X POST http://localhost:8000/api/artifacts \
-  -H "Authorization: Bearer $ARTIFACT_API_TOKEN" \
-  -F 'title=Release report' \
-  -F 'summary=Deployment results and follow-up actions' \
-  -F 'format=markdown' \
-  -F 'expires_in_days=30' \
-  -F 'content=@report.md;type=text/markdown' \
-  -F 'assets=@latency.png'
-```
+The canonical first publish is included in the localhost quick start. For publishing arbitrary
+Markdown or standalone HTML, use the hardened shell helper described below instead of assembling
+a bearer-authenticated `curl` request by hand.
 
 Important routes:
 
@@ -173,11 +166,14 @@ Treat share URLs as credentials.
 
 ## Generic agent and shell integration
 
-Use [`scripts/publish-file.sh`](scripts/publish-file.sh) from Claude Code, Codex, OpenCode,
-or any shell-capable agent. It publishes an existing Markdown or standalone HTML file while
-reading `ARTIFACT_RELAY_API_TOKEN` only from the environment; the token is not placed in the
-`curl` command arguments. See [Publish from any shell-capable agent](docs/GENERIC_AGENT_PUBLISHING.md)
-for secure setup, options, and the exact request scope.
+[`scripts/publish-example.sh`](scripts/publish-example.sh) is the bounded first-artifact path: it
+loads only the bootstrap-generated repository `.env` inside a subshell, publishes the bundled
+report, and prints its URL. Use [`scripts/publish-file.sh`](scripts/publish-file.sh) from Claude
+Code, Codex, OpenCode, or any shell-capable agent for an arbitrary existing Markdown or standalone
+HTML file. It reads `ARTIFACT_RELAY_API_TOKEN` only from the environment; the token is not placed
+in the `curl` command arguments. See
+[Publish from any shell-capable agent](docs/GENERIC_AGENT_PUBLISHING.md) for secure setup, options,
+and the exact request scope.
 
 ## Hermes Agent integration
 

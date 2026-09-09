@@ -41,7 +41,7 @@
         {"@type": "HowToStep", "position": 4, "name": "Build the image", "text": "Build the source checkout as artifact-relay:1.2.0."},
         {"@type": "HowToStep", "position": 5, "name": "Create credentials", "text": "Run the bootstrap script and enter a viewer password when prompted."},
         {"@type": "HowToStep", "position": 6, "name": "Start and verify", "text": "Start Docker Compose and call the unauthenticated health endpoint."},
-        {"@type": "HowToStep", "position": 7, "name": "Publish Markdown", "text": "Load the generated API token into the shell without displaying it, publish a sample Markdown file, and open the opaque URL returned by the API."}
+        {"@type": "HowToStep", "position": 7, "name": "Publish Markdown", "text": "Run the bounded example publisher and open the opaque URL it prints."}
       ]
     }
   </script>
@@ -121,7 +121,7 @@ curl -fsS http://localhost:8000/api/health</pre></div>
       <div class="section container guide-section">
         <div class="guide-heading">
           <p class="kicker">02 / First value</p>
-          <div><h2 id="publish-title">Publish a small Markdown artifact.</h2><p class="lede">This snippet creates a temporary file, loads the generated environment without printing it, sends the token only in the authorization header, extracts the returned opaque URL, and opens it.</p></div>
+          <div><h2 id="publish-title">Publish a small Markdown artifact.</h2><p class="lede">The bounded example command loads only the bootstrap-generated repository environment inside a subshell, publishes the bundled agent report, and prints only the returned opaque URL.</p></div>
         </div>
 
         <div class="credential-note">
@@ -130,31 +130,8 @@ curl -fsS http://localhost:8000/api/health</pre></div>
           <a class="details-link" href="../guides/secure-agent-publishing/">Understand publisher, viewer, and share boundaries →</a>
         </div>
 
-        <div class="code code-large"><button class="copy" type="button" data-copy="publish-code" data-copy-success="Publish commands copied" aria-label="Copy Markdown publish commands">Copy</button><pre id="publish-code" tabindex="0">SAMPLE_FILE="$(mktemp)"
-trap 'rm -f "$SAMPLE_FILE"' EXIT
-printf '# First relay\n\nPublished from my self-hosted Artifact Relay.\n' &gt; "$SAMPLE_FILE"
-
-set -a
-. ./.env
-set +a
-RESPONSE="$(curl -fsS -X POST http://localhost:8000/api/artifacts \
-  -H "Authorization: Bearer ${ARTIFACT_API_TOKEN}" \
-  -F 'title=First relay' \
-  -F 'summary=Local installation check' \
-  -F 'format=markdown' \
-  -F 'expires_in_days=30' \
-  -F "content=@${SAMPLE_FILE};filename=first-relay.md;type=text/markdown")"
-unset ARTIFACT_API_TOKEN SESSION_SECRET_KEY VIEW_PASSWORD_HASH
-
-ARTIFACT_URL="$(printf '%s' "$RESPONSE" | \
-  python3 -c 'import json,sys; print(json.load(sys.stdin)["url"])')"
-printf 'Published: %s\n' "$ARTIFACT_URL"
-if command -v open &gt;/dev/null; then
-  open "$ARTIFACT_URL"
-else
-  xdg-open "$ARTIFACT_URL"
-fi</pre></div>
-        <p class="callout">The artifact page asks for the viewer password you chose during bootstrap. Its path contains an opaque artifact ID, but the page remains private until you log in.</p>
+        <div class="code code-large"><button class="copy" type="button" data-copy="publish-code" data-copy-success="Publish command copied" aria-label="Copy Markdown publish command">Copy</button><pre id="publish-code" tabindex="0">./scripts/publish-example.sh</pre></div>
+        <p class="callout">Open the printed URL. The artifact page asks for the viewer password you chose during bootstrap. Its path contains an opaque artifact ID, but the page remains private until you log in.</p>
       </div>
     </section>
 
