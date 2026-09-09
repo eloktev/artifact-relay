@@ -4,6 +4,12 @@
 agents a narrow publish command. It accepts an existing Markdown or standalone HTML file and
 prints the private artifact URL on success.
 
+For a newly bootstrapped checkout, start with the
+[bounded first-artifact example](../scripts/publish-example.sh). It publishes the bundled report
+using the repository's bootstrap-generated `.env`; an optional HTTPS origin (or loopback HTTP
+origin) may be its only argument. Use the arbitrary-file workflow below once that activation
+check succeeds.
+
 ## Keep the publisher token out of the conversation
 
 Before starting the agent, provide `ARTIFACT_RELAY_API_TOKEN` through the process environment
