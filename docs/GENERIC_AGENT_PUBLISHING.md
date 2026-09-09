@@ -63,3 +63,45 @@ agent-specific provenance fields. Published artifacts remain subject to the rela
 validation and maximum TTL. A successful command prints only the `url` returned by the API. That
 response URL may use a different public origin from the request origin, but it must use HTTPS
 unless it addresses `localhost` or a loopback IP.
+
+## Publish from GitHub Actions
+
+The repository root contains a composite action that wraps the same hardened helper. It accepts a
+runner file path and non-secret metadata as action inputs. The publisher token remains a step-level
+GitHub Actions secret, not an action input or command argument:
+
+```yaml
+name: Publish report
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build report
+        run: mkdir -p build && printf '# Deployment report\n\nAll checks passed.\n' > build/report.md
+      - name: Publish private report
+        id: relay
+        uses: eloktev/artifact-relay@v1.3.0
+        env:
+          ARTIFACT_RELAY_API_TOKEN: ${{ secrets.ARTIFACT_RELAY_API_TOKEN }}
+        with:
+          relay-url: https://artifacts.example.com
+          artifact-path: build/report.md
+          title: Deployment report
+          expires-in-days: 30
+```
+
+The runner needs Bash, a POSIX shell, `curl`, `mktemp`, and Python 3. The action outputs only the
+validated `artifact-url`; it never emits the token. A private artifact URL can still be sensitive:
+avoid printing it from public-repository workflows, job summaries, annotations, or pull-request
+comments unless the intended audience is allowed to reach the viewer login.
+
+Pin `uses:` to a release tag or, for an immutable reference, a full commit SHA. Fork-based pull requests do not receive repository
+secrets by default; do not weaken that GitHub protection or switch to `pull_request_target` merely to
+publish untrusted changes. Use the action only after your report-producing step has completed and the
+runner identity is eligible to read the publisher secret.

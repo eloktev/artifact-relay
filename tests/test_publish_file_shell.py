@@ -12,6 +12,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISH_FILE = ROOT / "scripts" / "publish-file.sh"
+GITHUB_ACTION_PUBLISH = ROOT / "scripts" / "github-action-publish.sh"
 SECRET = "test-token-that-must-stay-private"
 FAKE_CURL = r"""#!/usr/bin/env python3
 import json
@@ -399,3 +400,59 @@ def test_malformed_success_response_fails_without_printing_response(tmp_path: Pa
     assert result.stdout == ""
     assert "valid artifact URL" in result.stderr
     assert SECRET not in result.stderr
+
+
+def test_github_action_wrapper_publishes_and_writes_only_validated_url(tmp_path: Path) -> None:
+    source = tmp_path / "release report.md"
+    source.write_text("# Release ready\n")
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    curl = fake_bin / "curl"
+    curl.write_text(FAKE_CURL)
+    curl.chmod(0o755)
+    curl_log = tmp_path / "curl.json"
+    output = tmp_path / "github-output"
+    env = dict(os.environ) | {
+        "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
+        "FAKE_CURL_LOG": str(curl_log),
+        "ARTIFACT_RELAY_API_TOKEN": SECRET,
+        "ARTIFACT_RELAY_BASE_URL": "https://relay.example",
+        "INPUT_ARTIFACT_PATH": str(source),
+        "INPUT_TITLE": "Release report",
+        "INPUT_SUMMARY": "CI result",
+        "INPUT_FORMAT": "markdown",
+        "INPUT_EXPIRES_IN_DAYS": "7",
+        "GITHUB_OUTPUT": str(output),
+    }
+
+    result = subprocess.run(  # noqa: S603
+        [str(GITHUB_ACTION_PUBLISH)],
+        cwd=ROOT,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == ""
+    assert result.stderr == ""
+    assert output.read_text() == "artifact-url=https://relay.example/a/abc123\n"
+    assert SECRET not in result.stdout
+    assert SECRET not in result.stderr
+    assert SECRET not in output.read_text()
+    request = json.loads(curl_log.read_text())
+    assert "title=Release report" in request["args"]
+    assert "summary=CI result" in request["args"]
+    assert "format=markdown" in request["args"]
+    assert "expires_in_days=7" in request["args"]
+
+
+def test_github_action_metadata_uses_composite_wrapper_without_token_input() -> None:
+    metadata = (ROOT / "action.yml").read_text()
+
+    assert "using: composite" in metadata
+    assert "scripts/github-action-publish.sh" in metadata
+    assert "artifact-url:" in metadata
+    assert "api-token:" not in metadata
+    assert "ARTIFACT_RELAY_API_TOKEN" not in metadata

@@ -47,7 +47,7 @@ def test_local_compose_has_safe_defaults_and_persistent_storage():
     assert 'COOKIE_SECURE: "false"' in compose
     assert 'SHARE_LINKS_ENABLED: "false"' in compose
     assert "/api/health" in compose
-    assert "${ARTIFACT_RELAY_IMAGE:-artifact-relay:1.2.0}" in compose
+    assert "${ARTIFACT_RELAY_IMAGE:-artifact-relay:1.3.0}" in compose
 
 
 def test_vps_examples_enable_https_cookies_and_shares_behind_caddy():
@@ -81,7 +81,7 @@ def test_bootstrap_creates_private_env_and_hashes_password_in_container(tmp_path
     env = os.environ | {
         "PATH": f"{bin_dir}:{os.environ['PATH']}",
         "ENV_FILE": str(tmp_path / ".env"),
-        "ARTIFACT_RELAY_IMAGE": "artifact-relay:1.2.0",
+        "ARTIFACT_RELAY_IMAGE": "artifact-relay:1.3.0",
     }
     result = subprocess.run(  # noqa: S603
         [str(ROOT / "scripts" / "bootstrap.sh")],
@@ -103,7 +103,7 @@ def test_bootstrap_creates_private_env_and_hashes_password_in_container(tmp_path
     assert "SHARE_LINKS_ENABLED=false" in values
     assert "correct horse battery staple" not in values
     invocation = log.read_text(encoding="utf-8")
-    expected = "run --rm -i --entrypoint python artifact-relay:1.2.0 -c"
+    expected = "run --rm -i --entrypoint python artifact-relay:1.3.0 -c"
     assert expected in invocation
     assert invocation.count("correct horse battery staple") == 1
 
@@ -156,3 +156,36 @@ def test_distribution_docs_are_generic_and_cover_operations():
     assert "COPY --chown=app:app LICENSE THIRD_PARTY_NOTICES.md /licenses/" in dockerfile
     assert "apt-get install" not in dockerfile
     assert "curl" not in dockerfile
+
+
+def test_github_action_is_documented_as_a_versioned_secret_safe_integration():
+    readme = read("README.md")
+    guide = read("docs/GENERIC_AGENT_PUBLISHING.md")
+
+    for document in (readme, guide):
+        assert "uses: eloktev/artifact-relay@v1.3.0" in document
+        assert "ARTIFACT_RELAY_API_TOKEN: ${{ secrets.ARTIFACT_RELAY_API_TOKEN }}" in document
+        assert "artifact-url" in document
+        assert (
+            "run: printf 'Artifact URL: %s\\n' '${{ steps.relay.outputs.artifact-url }}'"
+            not in document
+        )
+    assert "immutable release tag" not in readme
+    misleading_immutability = (
+        readme
+        + read("docs/VPS.md")
+        + read("docs/UPGRADE_ROLLBACK.md")
+        + read("SECURITY.md")
+        + read("site/self-host/index.html")
+    )
+    for phrase in (
+        "immutable tags",
+        "immutable container image",
+        "immutable registry image",
+        "immutable signed release tag",
+        "immutable image tag",
+    ):
+        assert phrase not in misleading_immutability
+    assert "image manifest digest" in read("docs/VPS.md")
+    assert "full commit SHA" in guide
+    assert 'version = "1.3.0"' in read("pyproject.toml")

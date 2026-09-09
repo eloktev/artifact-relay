@@ -46,7 +46,7 @@ supported below.
 Requirements: Docker Engine with Compose v2, OpenSSL, and a POSIX shell.
 
 ```sh
-docker build -t artifact-relay:1.2.0 .
+docker build -t artifact-relay:1.3.0 .
 ./scripts/bootstrap.sh
 docker compose up -d
 docker compose ps
@@ -68,11 +68,11 @@ The default Compose deployment is intentionally local-only:
 - data persists in the named volume `artifact-data`.
 
 The default Compose deployment keeps building the checkout and gives it the readable local tag
-`artifact-relay:1.2.0`. This source-build path remains the default.
+`artifact-relay:1.3.0`. This source-build path remains the default.
 
 Release tags publish multi-architecture images to GHCR only from strict `vX.Y.Z` tags that match
-the version in `pyproject.toml`. For release `v1.2.0`, inspect
-`ghcr.io/eloktev/artifact-relay:v1.2.0` and resolve its manifest-list digest before deployment:
+the version in `pyproject.toml`. For release `v1.3.0`, inspect
+`ghcr.io/eloktev/artifact-relay:v1.3.0` and resolve its manifest-list digest before deployment:
 
 ```sh
 docker buildx imagetools inspect ghcr.io/eloktev/artifact-relay:vX.Y.Z --format '{{json .Manifest.Digest}}'
@@ -175,6 +175,31 @@ in the `curl` command arguments. See
 [Publish from any shell-capable agent](docs/GENERIC_AGENT_PUBLISHING.md) for secure setup, options,
 and the exact request scope.
 
+### Publish a CI report with GitHub Actions
+
+The repository also ships a composite action for publishing a generated Markdown or standalone HTML
+report without copying the publisher token into workflow arguments. Store the token as the repository
+secret `ARTIFACT_RELAY_API_TOKEN`, then use the versioned release tag:
+
+```yaml
+- name: Publish release report
+  id: relay
+  uses: eloktev/artifact-relay@v1.3.0
+  env:
+    ARTIFACT_RELAY_API_TOKEN: ${{ secrets.ARTIFACT_RELAY_API_TOKEN }}
+  with:
+    relay-url: https://artifacts.example.com
+    artifact-path: build/release-report.md
+    title: Release report
+    summary: Build and deployment checks
+    expires-in-days: 30
+```
+
+The action exposes only the validated `artifact-url` output. Treat that private viewer URL as sensitive
+workflow output, and do not publish it to public logs when the relay requires viewer authentication.
+See the [generic publishing guide](docs/GENERIC_AGENT_PUBLISHING.md#publish-from-github-actions)
+for runner requirements and trust-boundary details.
+
 ## Hermes Agent integration
 
 Install the optional portable plugin from its separate repository:
@@ -201,7 +226,7 @@ secret setup and immutable installation options.
 ## Operations
 
 - [Backup and restore](docs/BACKUP_RESTORE.md) — executable scripts, consistency, and verification.
-- [Upgrade and rollback](docs/UPGRADE_ROLLBACK.md) — immutable tags/digests and data rollback.
+- [Upgrade and rollback](docs/UPGRADE_ROLLBACK.md) — image digests, pinned source revisions, and data rollback.
 - [Security policy](SECURITY.md) — private vulnerability reporting and deployment controls.
 - [Contributing](CONTRIBUTING.md) — tests and quality gates.
 

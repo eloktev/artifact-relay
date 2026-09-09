@@ -106,7 +106,7 @@ def test_landing_copy_matches_verified_positioning() -> None:
         "hosted and maintained for you",
         "Why not",
         "MIT",
-        "v1.2.0",
+        "v1.3.0",
         "Setup result",
     )
     for phrase in required_copy:
@@ -121,7 +121,7 @@ def test_landing_copy_matches_verified_positioning() -> None:
     hrefs = {attrs.get("href") for attrs in links}
     assert "https://github.com/eloktev/artifact-relay" in hrefs
     assert "https://github.com/eloktev/hermes-artifact-relay" in hrefs
-    assert "https://github.com/eloktev/artifact-relay/releases/tag/v1.2.0" in hrefs
+    assert "https://github.com/eloktev/artifact-relay/releases/tag/v1.3.0" in hrefs
     assert "https://relay.lok-labs.com/" in hrefs
     assert "hermes://plugin/install?repo=eloktev/hermes-artifact-relay&enable=1" in hrefs
 
@@ -221,8 +221,8 @@ def test_self_host_page_documents_first_value_without_exposing_secrets() -> None
         "OpenSSL",
         "POSIX shell",
         "git clone https://github.com/eloktev/artifact-relay.git",
-        "git checkout v1.2.0",
-        "docker build -t artifact-relay:1.2.0 .",
+        "git checkout v1.3.0",
+        "docker build -t artifact-relay:1.3.0 .",
         "./scripts/bootstrap.sh",
         "docker compose up -d",
         "curl -fsS http://localhost:8000/api/health",

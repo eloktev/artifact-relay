@@ -51,14 +51,14 @@
   <main id="main">
     <article>
       <header class="container guide-hero">
-        <p class="eyebrow">Technical guide · security model · v1.2.0</p>
+        <p class="eyebrow">Technical guide · security model · v1.3.0</p>
         <h1>Credential boundaries for secure AI-agent artifact publishing</h1>
         <p class="hero-copy">An AI agent needs permission to deliver work, not a password that unlocks everything a person can read. Artifact Relay separates publishing, private viewing, and selective sharing so each credential crosses a different trust boundary.</p>
         <div class="actions">
           <a class="button button-primary" href="#boundaries">Map the boundaries</a>
           <a class="button button-secondary" href="../../self-host/">Run the localhost guide</a>
         </div>
-        <p class="hero-note">Grounded in the Artifact Relay v1.2.0 repository · no claim of protection beyond the documented controls</p>
+        <p class="hero-note">Grounded in the Artifact Relay v1.3.0 repository · no claim of protection beyond the documented controls</p>
       </header>
 
       <section aria-labelledby="why-title">
@@ -147,8 +147,8 @@
           </div>
           <div class="code code-large"><pre tabindex="0">git clone https://github.com/eloktev/artifact-relay.git
 cd artifact-relay
-git checkout v1.2.0
-docker build -t artifact-relay:1.2.0 .
+git checkout v1.3.0
+docker build -t artifact-relay:1.3.0 .
 ./scripts/bootstrap.sh
 docker compose up -d
 docker compose ps
@@ -253,6 +253,6 @@ curl -fsS http://localhost:8000/api/health</pre></div>
     </article>
   </main>
 
-  <footer class="site-footer"><div class="container footer-inner"><span>Artifact Relay · private by default</span><span>Open source under MIT · v1.2.0</span></div></footer>
+  <footer class="site-footer"><div class="container footer-inner"><span>Artifact Relay · private by default</span><span>Open source under MIT · v1.3.0</span></div></footer>
 </body>
 </html>

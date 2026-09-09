@@ -8,7 +8,7 @@ Docker publishes the application only on `127.0.0.1`; Caddy owns ports 80/443.
 - Docker Engine with Compose v2
 - Caddy 2 installed on the host
 - DNS A/AAAA records for your hostname pointing to the VPS
-- A cloned, versioned checkout or an immutable container image
+- A cloned, versioned checkout or a digest-pinned container image
 
 ## Configure
 
@@ -17,19 +17,19 @@ Docker publishes the application only on `127.0.0.1`; Caddy owns ports 80/443.
    For a versioned source checkout:
 
    ```sh
-   docker build -t artifact-relay:1.2.0 .
-   export ARTIFACT_RELAY_IMAGE=artifact-relay:1.2.0
+   docker build -t artifact-relay:1.3.0 .
+   export ARTIFACT_RELAY_IMAGE=artifact-relay:1.3.0
    ```
 
-   Or pull an immutable registry image:
+   Or pull a versioned registry image:
 
    ```sh
-   export ARTIFACT_RELAY_IMAGE=registry.example/artifact-relay:1.2.0
+   export ARTIFACT_RELAY_IMAGE=registry.example/artifact-relay:1.3.0
    export ARTIFACT_RELAY_PULL_POLICY=missing
    docker pull "$ARTIFACT_RELAY_IMAGE"
    ```
 
-   A digest (`image@sha256:...`) gives stronger immutability.
+   For an immutable deployment, replace the tag with its image manifest digest (`image@sha256:...`).
 
 2. Run `./scripts/bootstrap.sh` to create `.env`, then edit only these values:
 

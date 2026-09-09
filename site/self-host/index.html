@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Self-host Artifact Relay — From clone to first Markdown artifact</title>
-  <meta name="description" content="Build Artifact Relay v1.2.0 from source, start it locally with Docker Compose, and publish your first private Markdown artifact.">
+  <meta name="description" content="Build Artifact Relay v1.3.0 from source, start it locally with Docker Compose, and publish your first private Markdown artifact.">
   <meta property="og:title" content="Self-host Artifact Relay from source">
-  <meta property="og:description" content="A tested path from clone to your first private Markdown artifact with Artifact Relay v1.2.0 and Docker Compose.">
+  <meta property="og:description" content="A tested path from clone to your first private Markdown artifact with Artifact Relay v1.3.0 and Docker Compose.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://artifact-relay.lok-labs.com/self-host/">
   <meta property="og:image" content="https://artifact-relay.lok-labs.com/assets/artifact-library.webp">
@@ -21,7 +21,7 @@
       "@context": "https://schema.org",
       "@type": "HowTo",
       "name": "Self-host Artifact Relay and publish a Markdown artifact",
-      "description": "Build the v1.2.0 source checkout, create local credentials, start Artifact Relay with Docker Compose, and publish a small Markdown file.",
+      "description": "Build the v1.3.0 source checkout, create local credentials, start Artifact Relay with Docker Compose, and publish a small Markdown file.",
       "url": "https://artifact-relay.lok-labs.com/self-host/",
       "totalTime": "PT10M",
       "supply": [
@@ -37,8 +37,8 @@
       "step": [
         {"@type": "HowToStep", "position": 1, "name": "Check prerequisites", "text": "Install Git, Docker Engine with Compose v2, OpenSSL, curl, Python 3, and a POSIX shell."},
         {"@type": "HowToStep", "position": 2, "name": "Clone the source", "text": "Clone the Artifact Relay repository and enter its directory."},
-        {"@type": "HowToStep", "position": 3, "name": "Select release v1.2.0", "text": "Check out the immutable v1.2.0 release tag."},
-        {"@type": "HowToStep", "position": 4, "name": "Build the image", "text": "Build the source checkout as artifact-relay:1.2.0."},
+        {"@type": "HowToStep", "position": 3, "name": "Select release v1.3.0", "text": "Check out the versioned v1.3.0 release tag."},
+        {"@type": "HowToStep", "position": 4, "name": "Build the image", "text": "Build the source checkout as artifact-relay:1.3.0."},
         {"@type": "HowToStep", "position": 5, "name": "Create credentials", "text": "Run the bootstrap script and enter a viewer password when prompted."},
         {"@type": "HowToStep", "position": 6, "name": "Start and verify", "text": "Start Docker Compose and call the unauthenticated health endpoint."},
         {"@type": "HowToStep", "position": 7, "name": "Publish Markdown", "text": "Run the bounded example publisher and open the opaque URL it prints."}
@@ -65,7 +65,7 @@
 
   <main id="main">
     <div class="container guide-hero">
-      <p class="eyebrow">Self-host · source build · v1.2.0</p>
+      <p class="eyebrow">Self-host · source build · v1.3.0</p>
       <h1>Self-host Artifact Relay. Publish something useful.</h1>
       <p class="hero-copy">This localhost path takes you from a versioned source checkout to one private Markdown artifact. Docker binds the service to <code>127.0.0.1</code>, and sharing stays disabled by default.</p>
       <div class="actions">
@@ -94,14 +94,14 @@
 
         <ol class="steps">
           <li class="step-card">
-            <div class="step-copy"><span class="step-number">1</span><div><h3>Clone the repository and pin v1.2.0</h3><p>The release tag makes this guide reproducible instead of following a moving branch.</p></div></div>
+            <div class="step-copy"><span class="step-number">1</span><div><h3>Clone the repository and pin v1.3.0</h3><p>The release tag makes this guide reproducible instead of following a moving branch.</p></div></div>
             <div class="code"><button class="copy" type="button" data-copy="clone-code" data-copy-success="Clone commands copied" aria-label="Copy clone commands">Copy</button><pre id="clone-code" tabindex="0">git clone https://github.com/eloktev/artifact-relay.git
 cd artifact-relay
-git checkout v1.2.0</pre></div>
+git checkout v1.3.0</pre></div>
           </li>
           <li class="step-card">
             <div class="step-copy"><span class="step-number">2</span><div><h3>Build the application image</h3><p>The supported default path builds the selected source checkout locally.</p></div></div>
-            <div class="code"><button class="copy" type="button" data-copy="build-code" data-copy-success="Build command copied" aria-label="Copy build command">Copy</button><pre id="build-code" tabindex="0">docker build -t artifact-relay:1.2.0 .</pre></div>
+            <div class="code"><button class="copy" type="button" data-copy="build-code" data-copy-success="Build command copied" aria-label="Copy build command">Copy</button><pre id="build-code" tabindex="0">docker build -t artifact-relay:1.3.0 .</pre></div>
           </li>
           <li class="step-card">
             <div class="step-copy"><span class="step-number">3</span><div><h3>Bootstrap private credentials</h3><p>Choose the password you will use in the browser. The script separately generates the API token and session signing key; it never stores the plaintext viewer password.</p></div></div>
@@ -175,6 +175,6 @@ rm .env</pre></div>
   </main>
 
   <div id="copy-status" class="sr-only" role="status" aria-live="polite"></div>
-  <footer class="site-footer"><div class="container footer-inner"><span>Artifact Relay · private by default</span><span>Open source under MIT · v1.2.0</span></div></footer>
+  <footer class="site-footer"><div class="container footer-inner"><span>Artifact Relay · private by default</span><span>Open source under MIT · v1.3.0</span></div></footer>
 </body>
 </html>

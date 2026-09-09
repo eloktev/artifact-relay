@@ -102,7 +102,7 @@ exact published manifest-list digests.
 
 ## Source-build deployments
 
-For source builds, check out an immutable signed release tag, leave the default pull policy at
+For source builds, check out a signed versioned release tag or an exact commit SHA, leave the default pull policy at
 `build`, run `docker compose ... build --pull app`, and use `up -d --wait --wait-timeout 120 app`.
 Take a tested backup first. Retain the old source checkout, image, and backup until the same bounded
 health and disposable-artifact acceptance succeeds.

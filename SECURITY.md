@@ -2,8 +2,8 @@
 
 ## Supported versions
 
-Security fixes are released for the latest published release. Deploy an immutable
-image tag or digest and follow the upgrade procedure in `docs/UPGRADE_ROLLBACK.md`.
+Security fixes are released for the latest published release. Deploy a versioned
+image tag or, for immutability, a manifest digest and follow the upgrade procedure in `docs/UPGRADE_ROLLBACK.md`.
 
 ## Reporting a vulnerability
 

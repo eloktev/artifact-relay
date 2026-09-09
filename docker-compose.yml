@@ -1,6 +1,6 @@
 services:
   app:
-    image: ${ARTIFACT_RELAY_IMAGE:-artifact-relay:1.2.0}
+    image: ${ARTIFACT_RELAY_IMAGE:-artifact-relay:1.3.0}
     build:
       context: .
     pull_policy: ${ARTIFACT_RELAY_PULL_POLICY:-build}

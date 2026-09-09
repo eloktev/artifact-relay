@@ -1,0 +1,46 @@
+name: Publish to Artifact Relay
+description: Publish a Markdown or standalone HTML file to a private Artifact Relay
+branding:
+  icon: file-text
+  color: blue
+inputs:
+  artifact-path:
+    description: Path to an existing Markdown or standalone HTML file
+    required: true
+  relay-url:
+    description: Artifact Relay origin (HTTPS unless it is a loopback address)
+    required: true
+  title:
+    description: Artifact title; defaults to the file name
+    required: false
+    default: ""
+  summary:
+    description: Optional artifact summary
+    required: false
+    default: ""
+  format:
+    description: Optional format override (markdown or html)
+    required: false
+    default: ""
+  expires-in-days:
+    description: Retention in days; 0 means no expiry
+    required: false
+    default: "30"
+outputs:
+  artifact-url:
+    description: Private viewer URL returned by Artifact Relay
+    value: ${{ steps.publish.outputs.artifact-url }}
+runs:
+  using: composite
+  steps:
+    - id: publish
+      name: Publish artifact
+      shell: bash
+      env:
+        ARTIFACT_RELAY_BASE_URL: ${{ inputs.relay-url }}
+        INPUT_ARTIFACT_PATH: ${{ inputs.artifact-path }}
+        INPUT_TITLE: ${{ inputs.title }}
+        INPUT_SUMMARY: ${{ inputs.summary }}
+        INPUT_FORMAT: ${{ inputs.format }}
+        INPUT_EXPIRES_IN_DAYS: ${{ inputs.expires-in-days }}
+      run: ${{ github.action_path }}/scripts/github-action-publish.sh

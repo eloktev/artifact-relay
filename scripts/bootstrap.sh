@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ENV_FILE="${ENV_FILE:-.env}"
-IMAGE="${ARTIFACT_RELAY_IMAGE:-artifact-relay:1.2.0}"
+IMAGE="${ARTIFACT_RELAY_IMAGE:-artifact-relay:1.3.0}"
 
 if [[ -e "$ENV_FILE" ]]; then
   printf 'Refusing to overwrite existing %s\n' "$ENV_FILE" >&2
