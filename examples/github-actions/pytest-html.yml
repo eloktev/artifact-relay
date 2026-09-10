@@ -1,0 +1,51 @@
+# Copy this file to .github/workflows/pytest-html.yml.
+# Configure:
+#   Actions variable: ARTIFACT_RELAY_BASE_URL
+#   Actions secret:   ARTIFACT_RELAY_API_TOKEN
+# Adapt the dependency-install step to your project before running it.
+
+name: Publish pytest HTML report
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+        with:
+          version: "0.7.0"
+
+      - name: Install project dependencies
+        run: uv sync --frozen --extra dev
+
+      - name: Run pytest and build a standalone report
+        id: pytest
+        continue-on-error: true
+        run: >
+          uv run --with pytest-html==4.2.0
+          pytest --html=pytest-report.html --self-contained-html
+
+      - name: Publish the private report
+        if: always() && steps.pytest.outcome != 'skipped'
+        uses: eloktev/artifact-relay@v1.3.0
+        env:
+          ARTIFACT_RELAY_API_TOKEN: ${{ secrets.ARTIFACT_RELAY_API_TOKEN }}
+        with:
+          relay-url: ${{ vars.ARTIFACT_RELAY_BASE_URL }}
+          artifact-path: pytest-report.html
+          title: Pytest report — ${{ github.repository }} @ ${{ github.sha }}
+          summary: ${{ steps.pytest.outcome }}
+          expires-in-days: 30
+
+      - name: Preserve the pytest result
+        if: always() && steps.pytest.outcome == 'failure'
+        run: exit 1

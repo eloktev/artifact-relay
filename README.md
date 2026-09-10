@@ -197,7 +197,11 @@ secret `ARTIFACT_RELAY_API_TOKEN`, then use the versioned release tag:
 
 The action exposes only the validated `artifact-url` output. Treat that private viewer URL as sensitive
 workflow output, and do not publish it to public logs when the relay requires viewer authentication.
-See the [generic publishing guide](docs/GENERIC_AGENT_PUBLISHING.md#publish-from-github-actions)
+For a copyable end-to-end example that generates a standalone report, publishes it even when tests
+fail, and then preserves pytest's exit status, use the
+[pytest-html workflow example](examples/github-actions/pytest-html.yml). Adapt its dependency-install
+step to your project, and do not expose the publisher secret to untrusted pull-request code. See the
+[generic publishing guide](docs/GENERIC_AGENT_PUBLISHING.md#publish-from-github-actions)
 for runner requirements and trust-boundary details.
 
 ## Hermes Agent integration
