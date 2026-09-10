@@ -189,3 +189,20 @@ def test_github_action_is_documented_as_a_versioned_secret_safe_integration():
     assert "image manifest digest" in read("docs/VPS.md")
     assert "full commit SHA" in guide
     assert 'version = "1.3.0"' in read("pyproject.toml")
+
+
+def test_pytest_html_workflow_publishes_failure_report_without_exposing_secret():
+    workflow = read("examples/github-actions/pytest-html.yml")
+    readme = read("README.md")
+
+    assert "pytest-html==4.2.0" in workflow
+    assert "--self-contained-html" in workflow
+    assert "continue-on-error: true" in workflow
+    assert "if: always() && steps.pytest.outcome != 'skipped'" in workflow
+    assert "uses: eloktev/artifact-relay@v1.3.0" in workflow
+    assert "ARTIFACT_RELAY_API_TOKEN: ${{ secrets.ARTIFACT_RELAY_API_TOKEN }}" in workflow
+    assert "relay-url: ${{ vars.ARTIFACT_RELAY_BASE_URL }}" in workflow
+    assert "if: always() && steps.pytest.outcome == 'failure'" in workflow
+    assert "pull_request_target" not in workflow
+    assert "artifact-url" not in workflow
+    assert "[pytest-html workflow example](examples/github-actions/pytest-html.yml)" in readme
